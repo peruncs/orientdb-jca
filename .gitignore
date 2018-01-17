@@ -1,5 +1,7 @@
 out/
 build/
+.gradle/
+
 # Compiled class file
 *.class
 
