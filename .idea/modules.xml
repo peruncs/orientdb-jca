@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/orientdb-jca.iml" filepath="$PROJECT_DIR$/orientdb-jca.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api.iml" group="orientdb-ra-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api_main.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api_main.iml" group="orientdb-ra-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api_test.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-api/orientdb-ra-api_test.iml" group="orientdb-ra-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl.iml" group="orientdb-ra-impl" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl_main.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl_main.iml" group="orientdb-ra-impl" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl_test.iml" filepath="$PROJECT_DIR$/.idea/modules/orientdb-ra-impl/orientdb-ra-impl_test.iml" group="orientdb-ra-impl" />
+    </modules>
+  </component>
+</project>
