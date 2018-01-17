@@ -1,58 +1,57 @@
+group = 'com.peruncs'
+version = "${orientdb_jca_version}"
 
-    group = 'com.peruncs'
-    version = "${orientdb_jca_version}"
+apply plugin: 'java'
+apply plugin: 'maven'
+sourceCompatibility = "${java_lang_level}"
+targetCompatibility = "${java_lang_level}"
+tasks.withType(JavaCompile) {
+    options.incremental = true
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:deprecation"
+}
 
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    sourceCompatibility = "${java_lang_level}"
-    targetCompatibility = "${java_lang_level}"
-    tasks.withType(JavaCompile) {
-        options.incremental = true
-        options.encoding = 'UTF-8'
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:deprecation"
-    }
-
-    buildscript {
-
-        repositories {
-            mavenLocal()
-            mavenCentral()
-            jcenter()
-            maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
-        }
-
-    }
+buildscript {
 
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
         maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
-        maven { url 'https://oss.sonatype.org/content/repositories/google-snapshots' }
-        maven { url 'https://repository.jboss.org/nexus/content/groups/public' }
-        maven { url 'https://maven.repository.redhat.com/techpreview/all' }
-        mavenLocal()
     }
 
-    dependencies {
-        testCompile "junit:junit:${junit_version}"
-		compileOnly "org.slf4j:slf4j-api:${slf4j_version}"
-		compileOnly "javax:javaee-api:${java_ee_version}"
-		compileOnly "com.orientechnologies:orientdb-server:${orientdb_version}"
-		compileOnly "com.orientechnologies:orientdb-distributed:${orientdb_version}"
-		compileOnly "com.orientechnologies:orientdb-graphdb:${orientdb_version}"
-		compileOnly "com.orientechnologies:orientdb-client:${orientdb_version}"
-    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/google-snapshots' }
+    maven { url 'https://repository.jboss.org/nexus/content/groups/public' }
+    maven { url 'https://maven.repository.redhat.com/techpreview/all' }
+    mavenLocal()
+}
+
+dependencies {
+    testCompile "junit:junit:${junit_version}"
+    compileOnly "org.slf4j:slf4j-api:${slf4j_version}"
+    compileOnly "javax:javaee-api:${java_ee_version}"
+    compileOnly "com.orientechnologies:orientdb-server:${orientdb_version}"
+    compileOnly "com.orientechnologies:orientdb-distributed:${orientdb_version}"
+    compileOnly "com.orientechnologies:orientdb-graphdb:${orientdb_version}"
+    compileOnly "com.orientechnologies:orientdb-client:${orientdb_version}"
+}
 
 
 
-    task apiJar(type: Jar) {
-        baseName = project.name + '-api'
-        from sourceSets.main.output
-        include('com/peruncs/odb/api/**')
-    }
+task apiJar(type: Jar) {
+    baseName = project.name + '-api'
+    from sourceSets.main.output
+    include('com/peruncs/odb/api/**')
+}
 
-    task implJar(type: Jar) {
-        baseName = project.name + '-impl'
-        from sourceSets.main.output
-        include('com/peruncs/odb/impl/**')
-    }
+task implJar(type: Jar) {
+    baseName = project.name + '-impl'
+    from sourceSets.main.output
+    include('com/peruncs/odb/impl/**')
+}
