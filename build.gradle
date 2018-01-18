@@ -55,3 +55,19 @@ task implJar(type: Jar) {
     from sourceSets.main.output
     include('com/peruncs/odb/impl/**')
 }
+
+
+//artifacts {
+//    apiJar
+//}
+//
+//artifacts {
+//    implJar
+//}
+//
+//artifacts {
+//     jar
+//}
+
+assemble.dependsOn apiJar
+assemble.dependsOn implJar
