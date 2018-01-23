@@ -9,17 +9,19 @@ import javax.resource.spi.*;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 
-import static javax.resource.spi.TransactionSupport.TransactionSupportLevel.LocalTransaction;
-
-
+/**
+ * @author Harald Wellmann
+ * 
+ */
+// @formatter:off
 @Connector(
-        transactionSupport = LocalTransaction,
-        version = "1.0",
-        vendorName = "PerunCS",
-        eisType = "OrientDB")
+    reauthenticationSupport = false, 
+    transactionSupport = TransactionSupport.TransactionSupportLevel.LocalTransaction,
+    version = "1.0",
+    vendorName = "PerunCS",
+    eisType = "OrientDB")
+// @formatter:on
 public class OrientResourceAdapter implements ResourceAdapter {
-
-    static final XAResource[] EMPTY_XA_RESOURCES = new XAResource[0];
 
     private static Logger log = LoggerFactory.getLogger(OrientResourceAdapter.class);
 
@@ -41,16 +43,28 @@ public class OrientResourceAdapter implements ResourceAdapter {
     }
 
     @Override
-    public void endpointActivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) {
+    public void endpointActivation(MessageEndpointFactory endpointFactory, ActivationSpec spec)
+        throws ResourceException {
+        // not used
     }
 
     @Override
     public void endpointDeactivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) {
+        // not used
     }
 
     @Override
     public XAResource[] getXAResources(ActivationSpec[] specs) throws ResourceException {
-        return EMPTY_XA_RESOURCES;
+        return null;
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }
