@@ -1,6 +1,9 @@
 package com.peruncs.odb.impl;
 
-
+import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.peruncs.odb.api.OrientDatabaseConnection;
 import com.peruncs.odb.api.OrientDatabaseConnectionFactory;
 import com.peruncs.odb.api.OrientManagedConnectionFactory;
@@ -11,13 +14,9 @@ import javax.resource.ResourceException;
 import javax.resource.spi.*;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
-/**
- * @author Harald Wellmann
- * 
- */
 
 @ConnectionDefinition(
     connectionFactory = OrientDatabaseConnectionFactory.class,
@@ -30,30 +29,46 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     private static Logger log = LoggerFactory.getLogger(OrientManagedConnectionFactoryImpl.class);
     
-    
-    private PrintWriter logWriter;
+    private PrintWriter logWriter = new PrintWriter(System.out);
+
     private OrientResourceAdapter ra;
 
-    @ConfigProperty(defaultValue = "document")
-    private String type;
-    
     @ConfigProperty
     private String connectionUrl;
     
-    @ConfigProperty(defaultValue = "admin")
-    private String username;
-    
-    @ConfigProperty(defaultValue = "admin")
-    private String password;
-    
+    @ConfigProperty
+    private String serverUserName;
 
-    public OrientManagedConnectionFactoryImpl() {
-        this.logWriter = new PrintWriter(System.out);
+    @ConfigProperty
+    private String serverPassword;
+
+    @ConfigProperty
+    private String dbName;
+
+    @ConfigProperty
+    private String dbType ;
+
+    @ConfigProperty
+    private String dbUsername;
+    
+    @ConfigProperty
+    private String dbPassword;
+
+    @ConfigProperty
+    private int maxPoolSize =0 ;
+
+    @ConfigProperty
+    private boolean createDbIfMissing = true;
+
+    private final int hash;
+
+    public OrientManagedConnectionFactoryImpl(){
+        hash = Objects.hash(ra,connectionUrl,serverUserName,serverPassword, dbName, dbUsername, dbPassword);
     }
-
+    
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory");
+        log.debug("creating managed connection factory: url {}, user: {}", connectionUrl, dbUsername);
         validate();
         return new OrientDatabaseConnectionFactoryImpl(this, cxManager);
     }
@@ -61,10 +76,6 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     private void validate() throws ResourceException {
         if (connectionUrl == null || connectionUrl.trim().isEmpty()) {
             throw new ResourceException("configuration property [connectionUrl] must not be empty");
-        }
-        
-        if (!Arrays.asList("document", "graph", "object").contains(type)) {
-            throw new ResourceException("configuration property [type] must be one of 'document', 'graph', 'object'");
         }
     }
 
@@ -74,20 +85,16 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     }
 
     @Override
-    public ManagedConnection createManagedConnection(Subject subject,
-                                                     ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-        log.debug("creating managed connection");
+    public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+        log.debug("creating managed connection: url {}, user: {}", connectionUrl, dbUsername);
         return new OrientManagedConnectionImpl(this, cxRequestInfo);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked", "resource" })
     @Override
-    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject,
-                                                     ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo){
 
-        Set<ManagedConnection> connections = connectionSet;
-
-        for (ManagedConnection connection : connections) {
+        for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
             if (connection instanceof OrientManagedConnectionImpl) {
                 OrientManagedConnectionImpl orientConnection = (OrientManagedConnectionImpl) connection;
                 ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
@@ -124,74 +131,33 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
         return TransactionSupport.TransactionSupportLevel.LocalTransaction;
     }
 
-    /**
-     * @return the connectionUrl
-     */
-    public String getConnectionUrl() {
-        return connectionUrl;
+    OrientDB newOrientDB(){
+        OrientDB orientDb;
+
+        if(serverUserName!=null && serverPassword!=null) {
+            orientDb = new OrientDB(connectionUrl, serverUserName, serverPassword, OrientDBConfig.defaultConfig());
+        }else {
+            orientDb = new OrientDB(connectionUrl, OrientDBConfig.defaultConfig());
+        }
+
+        if(createDbIfMissing){
+            orientDb.createIfNotExists(dbName,getDbType()) ;
+        }
+
+        return orientDb;
     }
 
-    
-    /**
-     * @param connectionUrl the connectionUrl to set
-     */
-    public void setConnectionUrl(String connectionUrl) {
-        this.connectionUrl = connectionUrl;
-    }
-    
-    /**
-     * @return the username
-     */
-    public String getUsername() {
-        return username;
+    ODatabasePool newOrientDBPool(OrientDB orientDB){
+        return new ODatabasePool(orientDB,dbName,dbUsername,dbPassword);
     }
 
-    
-    /**
-     * @param username the username to set
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    
-    /**
-     * @return the type
-     */
-    public String getType() {
-        return type;
-    }
-
-    
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type) {
-        this.type = type;
+    private ODatabaseType getDbType(){
+        return dbType == null? ODatabaseType.MEMORY: ODatabaseType.valueOf(dbType);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((ra == null) ? 0 : ra.hashCode());
-        return result;
+        return hash;
     }
 
     @Override
@@ -199,21 +165,28 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         OrientManagedConnectionFactoryImpl other = (OrientManagedConnectionFactoryImpl) obj;
-        if (ra == null) {
-            if (other.ra != null) {
-                return false;
-            }
-        }
-        else if (!ra.equals(other.ra)) {
-            return false;
-        }
-        return true;
+
+        return     Objects.equals(ra,other.ra)
+                && Objects.equals(connectionUrl,other.connectionUrl)
+                && Objects.equals(serverUserName,other.serverUserName)
+                && Objects.equals(serverPassword,other.serverPassword)
+                && Objects.equals(dbName,other.dbName)
+                && Objects.equals(dbUsername,other.dbUsername)
+                && Objects.equals(dbPassword,other.dbPassword)
+                ;
+    }
+
+    public int getMaxPoolSize() {
+        return maxPoolSize;
     }
 }

@@ -1,6 +1,9 @@
 package com.peruncs.odb.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+
+import com.orientechnologies.orient.core.OConstants;
+import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.OrientDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,120 +18,81 @@ import java.util.List;
 
 import static javax.resource.spi.ConnectionEvent.*;
 
-/**
- * @author Harald Wellmann
- * 
- */
+
 class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
 
     private static Logger log = LoggerFactory.getLogger(OrientManagedConnectionImpl.class);
 
     private OrientManagedConnectionFactoryImpl mcf;
-    private ODatabaseInternal<?> db;
-    private PrintWriter                        logWriter;
+    private OrientDB orientDB;
+    private ODatabasePool orientDBPool;
+    private PrintWriter logWriter = new PrintWriter(System.out);
     private List<ConnectionEventListener> listeners = new ArrayList<ConnectionEventListener>();
     private ConnectionRequestInfo cri;
-
     private OrientDatabaseConnectionImpl connection;
 
-    private String engine;
 
     class OrientLocalTransaction implements LocalTransaction {
 
         @Override
         public void begin() throws ResourceException {
             log.debug("begin()");
-            db.begin();
+            //db.begin();
             fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
         }
 
         @Override
         public void commit() throws ResourceException {
             log.debug("commit()");
-            db.commit();
+            //db.commit();
             fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
         }
 
         @Override
         public void rollback() throws ResourceException {
             log.debug("rollback()");
-            db.rollback();
+            //db.rollback();
             fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
         }
     }
 
-    public OrientManagedConnectionImpl(OrientManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri) throws ResourceException {
+    public OrientManagedConnectionImpl(OrientManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri){
         this.mcf = mcf;
         this.cri = cri;
-        determineEngine();
-        createDatabaseHandle();
-        createDatabaseIfNeeded();
+        orientDB = mcf.newOrientDB();
+        orientDBPool = mcf.newOrientDBPool(orientDB);
+
     }
 
     @Override
     public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
         log.debug("getConnection()");
-
-        connection = new OrientDatabaseConnectionImpl(db, this);
-        if (db.isClosed()) {
-            openDatabase();
+        if(connection == null) {
+            connection = new OrientDatabaseConnectionImpl(this);
         }
-
         return connection;
     }
 
-    private void createDatabaseHandle() {
-        String type = mcf.getType();
-        String url = mcf.getConnectionUrl();
-
-        log.debug("instantiating Orient Database of type [{}] with URL [{}]", type, url);
-//        if (type.equals("document")) {
-//            this.db = new ODatabaseDocumentTx(url);
-//        } else if (type.equals("object")) {
-//            this.db = new OObjectDatabaseTx(url);
-//        } else if (type.equals("graph")) {
-//            this.db = new ODatabaseDocumentTx(url);
-//        }
-    }
-
-    private synchronized void createDatabaseIfNeeded() {
-//        if (!engine.equals("remote")) {
-//            if (!db.exists()) {
-//                db.create();
-//            }
-//        }
-    }
-
-    private void determineEngine() throws ResourceException {
-        int colon = mcf.getConnectionUrl().indexOf(':');
-        if (colon == -1) {
-            throw new ResourceException();
-        }
-        this.engine = mcf.getConnectionUrl().substring(0, colon);
-    }
-    
-    private void openDatabase() {
-//        log.debug("opening database for user [{}]", mcf.getUsername());
-//        if (db.isClosed()) {
-//            db.open(mcf.getUsername(), mcf.getPassword());
-//        }
-    }
-
-    private void closeDatabase() {
-        db.close();
-    }
-
     @Override
-    public void destroy() throws ResourceException {
+    public void destroy()  {
         log.debug("destroy()");
-        closeDatabase();
+        orientDBPool.close();
+        orientDB.close();
     }
 
     @Override
     public void cleanup() throws ResourceException {
         log.debug("cleanup()");
-	      this.connection.setValid(false);
-	      this.connection = null;
+        this.connection = null;
+    }
+
+
+    OrientDB getOrientDB() {
+        return orientDB;
+    }
+
+    ODatabasePool getOrientDBPool() {
+        return orientDBPool;
     }
 
     @Override
@@ -147,6 +111,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
 
     @Override
     public void removeConnectionEventListener(ConnectionEventListener listener) {
+        log.debug("removeConnectionEventListener()");
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -158,27 +123,53 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     }
 
     @Override
-    public LocalTransaction getLocalTransaction() throws ResourceException {
+    public LocalTransaction getLocalTransaction(){
         log.debug("getLocalTransaction()");
         return new OrientLocalTransaction();
     }
 
     @Override
-    public ManagedConnectionMetaData getMetaData() throws ResourceException {
-        return new OrientManagedConnectionMetaData();
+    public ManagedConnectionMetaData getMetaData() {
+
+        return new ManagedConnectionMetaData(){
+            @Override
+            public String getEISProductName() {
+                return "OrientDB";
+            }
+
+            @Override
+            public String getEISProductVersion() {
+                return OConstants.getVersion();
+            }
+
+            @Override
+            public int getMaxConnections() {
+                return mcf.getMaxPoolSize();
+            }
+
+            @Override
+            public String getUserName()  {
+                return "admin";
+            }
+
+        };
+
     }
 
-    @Override
-    public void setLogWriter(PrintWriter out) throws ResourceException {
-        this.logWriter = out;
-    }
 
+
+    /**
+     * Do not close the underlying connection now, as it may be used in a container-managed
+     * transaction. The connection will be closed in {@link #cleanup()}.
+     */
     @Override
-    public PrintWriter getLogWriter() throws ResourceException {
-        return logWriter;
+    public void close() {
+        log.debug("close()");
+        fireConnectionEvent(CONNECTION_CLOSED);
     }
 
     private void fireConnectionEvent(int event) {
+        log.debug("fireConnectionEvent()");
         ConnectionEvent connectionEvent = new ConnectionEvent(this, event);
         connectionEvent.setConnectionHandle(connection);
         synchronized (listeners) {
@@ -206,17 +197,20 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
         }
     }
 
-    /**
-     * Do not close the underlying connection now, as it may be used in a container-managed
-     * transaction. The connection will be closed in {@link #cleanup()}.
-     */
-    @Override
-    public void close() {
-        log.debug("close()");
-        fireConnectionEvent(CONNECTION_CLOSED);
-    }
+
 
     public ConnectionRequestInfo getConnectionRequestInfo() {
         return cri;
     }
+
+    @Override
+    public void setLogWriter(PrintWriter out){
+        this.logWriter = out;
+    }
+
+    @Override
+    public PrintWriter getLogWriter(){
+        return logWriter;
+    }
+
 }

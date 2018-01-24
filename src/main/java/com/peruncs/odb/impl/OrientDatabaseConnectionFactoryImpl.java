@@ -9,10 +9,6 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 
 
-/**
- * @author Harald Wellmann
- *
- */
 public class OrientDatabaseConnectionFactoryImpl implements OrientDatabaseConnectionFactory {
 
     private static final long serialVersionUID = 1L;
