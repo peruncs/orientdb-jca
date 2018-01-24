@@ -9,7 +9,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-configuration:commons-configuration:1.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-logging:commons-logging:1.1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: net.java.dev.jna:jna:4.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: net.java.dev.jna:jna-platform:4.5.0" level="project" />
@@ -39,7 +38,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: javax.xml.bind:jaxb-api:2.2.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.codehaus.jettison:jettison:1.3.3" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.carrotsearch:hppc:0.6.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-beanutils:commons-beanutils-core:1.8.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-configuration:commons-configuration:1.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-beanutils:commons-beanutils:1.7.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-beanutils:commons-beanutils-core:1.8.0" level="project" />
   </component>
 </module>
