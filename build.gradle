@@ -46,19 +46,18 @@ dependencies {
 
 
 task apiJar(type: Jar, dependsOn: classes) {
-    classifier 'api'
+    //classifier 'api'
     from sourceSets.main.output
     include('com/peruncs/odb/api/**')
 }
 
-task implJar(type: Jar, dependsOn: classes) {
-    classifier 'impl'
+task rarJar(type: Jar, dependsOn: classes) {
+    extension 'rar'
     from sourceSets.main.output
-    include('com/peruncs/odb/impl/**')
 }
 
 task srcJar(type: Jar, dependsOn: apiJar) {
-    classifier = 'src'
+    classifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -67,12 +66,32 @@ task srcJar(type: Jar, dependsOn: apiJar) {
 publishing {
 
     publications {
-        mavenPublication(MavenPublication) {
-            //from components.java
-            artifact implJar
+        piPublication(MavenPublication) {
             artifact apiJar
             artifact srcJar
-
+            artifactId 'odbjca-api'
+            pom.withXml {
+                asNode().with {
+                    appendNode('description', 'OrientDB JCA adapter for Java EE')
+                    appendNode('name', 'OrientDB JCA')
+                    appendNode('url', 'https://github.com/peruncs/orientdb-jca')
+                    appendNode('organization').with {
+                        appendNode('name', 'Perun Consulting Services, Inc')
+                        appendNode('url', 'www.peruncs.com')
+                    }
+                    appendNode('licenses').with {
+                        appendNode('license').with {
+                            appendNode('name', 'Apache 2.0')
+                            appendNode('url', 'https://www.apache.org/licenses/LICENSE-2.0')
+                        }
+                    }
+                }
+            }
+        }
+        rarPublication(MavenPublication) {
+            artifact rarJar
+            artifact srcJar
+            artifactId 'odbjca-rar'
             pom.withXml {
                 asNode().with {
                     appendNode('description', 'OrientDB JCA adapter for Java EE')
