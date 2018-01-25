@@ -35,8 +35,8 @@ repositories {
 
 dependencies {
     testCompile "junit:junit:${junit_version}"
-    compileOnly "org.slf4j:slf4j-api:${slf4j_version}"
     compileOnly "javax:javaee-api:${java_ee_version}"
+    compileOnly "commons-logging:commons-logging-api:${commons_logging_version}"
     compileOnly "com.orientechnologies:orientdb-server:${orientdb_version}"
     compileOnly "com.orientechnologies:orientdb-distributed:${orientdb_version}"
     compileOnly "com.orientechnologies:orientdb-graphdb:${orientdb_version}"

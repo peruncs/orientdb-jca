@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.peruncs.odb.api.OrientDatabaseConnection;
 import com.peruncs.odb.api.OrientDatabaseConnectionFactory;
 import com.peruncs.odb.api.OrientManagedConnectionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.*;
@@ -27,7 +27,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(OrientManagedConnectionFactoryImpl.class);
+    private static final Log log = LogFactory.getLog(OrientManagedConnectionFactoryImpl.class);
     
     private PrintWriter logWriter = new PrintWriter(System.out);
 
@@ -68,7 +68,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory: url {}, user: {}", connectionUrl, dbUsername);
+        log.debug("creating managed connection factory, url: "+connectionUrl+",  user: "+ dbUsername);
         validate();
         return new OrientDatabaseConnectionFactoryImpl(this, cxManager);
     }
@@ -86,7 +86,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.debug("creating managed connection: url {}, user: {}", connectionUrl, dbUsername);
+        log.debug("creating managed connection, url: "+connectionUrl+",  user: "+ dbUsername);
         return new OrientManagedConnectionImpl(this, cxRequestInfo);
     }
 
@@ -161,7 +161,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
                 ;
     }
 
-    public int getMaxPoolSize() {
+    int getMaxPoolSize() {
         return maxPoolSize;
     }
 

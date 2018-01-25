@@ -2,8 +2,8 @@ package com.peruncs.odb.impl;
 
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 import javax.resource.spi.*;
@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class OrientResourceAdapter implements ResourceAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(OrientResourceAdapter.class);
+    private static final Log log = LogFactory.getLog(OrientResourceAdapter.class);
 
     public static final XAResource[] EMPTY_XA_RESOURCE = new XAResource[0];
 
@@ -33,7 +33,7 @@ public class OrientResourceAdapter implements ResourceAdapter {
 
     @Override
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
-        log.info("Starting OrientResourceAdapter, embedded server configuration: {}",embeddedServerConfiguration);
+        log.info("Starting OrientResourceAdapter, embedded server configuration: "+embeddedServerConfiguration);
 
         if(embeddedServerConfiguration!=null) try {
             embeddedServer = OServerMain.create(true);
@@ -54,7 +54,7 @@ public class OrientResourceAdapter implements ResourceAdapter {
         log.info("Stopping OrientResourceAdapter");
         if(embeddedServer !=null && embeddedServer.isActive()){
             embeddedServer.shutdown();
-            log.info("Shut down server {}",embeddedServerConfiguration);
+            log.info("Shut down server "+embeddedServerConfiguration);
         }
     }
 

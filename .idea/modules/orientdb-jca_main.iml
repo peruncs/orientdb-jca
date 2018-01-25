@@ -9,16 +9,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: net.java.dev.jna:jna-platform:4.5.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.xerial.snappy:snappy-java:1.1.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.6.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.6.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: javax.xml.stream:stax-api:1.0-2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: stax:stax-api:1.0.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-lang:commons-lang:2.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-digester:commons-digester:1.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: javax:javaee-api:7.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.orientechnologies:orientdb-server:3.0.0RC1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.orientechnologies:orientdb-distributed:3.0.0RC1" level="project" />
@@ -27,7 +19,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.orientechnologies:orientdb-client:3.0.0RC1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.orientechnologies:orientdb-tools:3.0.0RC1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: javax.mail:mail:1.4.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.sun.xml.bind:jaxb-impl:2.2.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: javax.xml.stream:stax-api:1.0-2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.hazelcast:hazelcast:3.8.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.orientechnologies:orientdb-core:3.0.0RC1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.tinkerpop.blueprints:blueprints-core:2.6.0" level="project" />
@@ -39,7 +31,15 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-configuration:commons-configuration:1.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-logging:commons-logging:1.1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: net.java.dev.jna:jna:4.5.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: net.java.dev.jna:jna-platform:4.5.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.xerial.snappy:snappy-java:1.1.0.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-beanutils:commons-beanutils:1.7.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.6.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.6.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.sun.xml.bind:jaxb-impl:2.2.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: stax:stax-api:1.0.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-logging:commons-logging-api:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: commons-beanutils:commons-beanutils-core:1.8.0" level="project" />
   </component>
 </module>

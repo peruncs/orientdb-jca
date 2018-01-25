@@ -4,8 +4,8 @@ package com.peruncs.odb.impl;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.*;
@@ -20,7 +20,7 @@ import static javax.resource.spi.ConnectionEvent.*;
 
 class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
 
-    private static final Logger log = LoggerFactory.getLogger(OrientManagedConnectionImpl.class);
+    private static final Log log = LogFactory.getLog(OrientManagedConnectionImpl.class);
 
     private final OrientManagedConnectionFactoryImpl mcf;
     private final OrientDB orientDB;
