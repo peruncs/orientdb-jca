@@ -6,7 +6,7 @@ import com.peruncs.odb.api.OrientDatabaseConnection;
 
 public class OrientDatabaseConnectionImpl implements OrientDatabaseConnection {
 
-    private OrientManagedConnectionImpl mc;
+    private final OrientManagedConnectionImpl mc;
 
     OrientDatabaseConnectionImpl( OrientManagedConnectionImpl mc) {
         this.mc = mc;

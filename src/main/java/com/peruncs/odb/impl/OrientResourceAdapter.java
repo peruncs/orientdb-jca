@@ -10,19 +10,18 @@ import javax.resource.spi.*;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 import java.io.File;
-
+import java.util.Objects;
 
 
 @Connector(
-    reauthenticationSupport = false, 
-    transactionSupport = TransactionSupport.TransactionSupportLevel.LocalTransaction,
+        transactionSupport = TransactionSupport.TransactionSupportLevel.NoTransaction,
     version = "1.0",
     vendorName = "PerunCS",
     eisType = "OrientDB")
 
 public class OrientResourceAdapter implements ResourceAdapter {
 
-    private static Logger log = LoggerFactory.getLogger(OrientResourceAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(OrientResourceAdapter.class);
 
     public static final XAResource[] EMPTY_XA_RESOURCE = new XAResource[0];
 
@@ -72,11 +71,26 @@ public class OrientResourceAdapter implements ResourceAdapter {
 
     @Override
     public int hashCode() {
-        return embeddedServerConfiguration!=null ? embeddedServerConfiguration.hashCode() : super.hashCode();
+        return Objects.hashCode(embeddedServerConfiguration);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return embeddedServerConfiguration!=null? embeddedServerConfiguration.equals(obj) : super.equals(obj);
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        OrientResourceAdapter other = (OrientResourceAdapter) obj;
+        return Objects.equals(embeddedServerConfiguration,other.embeddedServerConfiguration);
+
     }
 }

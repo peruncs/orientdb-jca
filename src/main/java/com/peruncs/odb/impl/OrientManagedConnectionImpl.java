@@ -18,43 +18,41 @@ import java.util.List;
 
 import static javax.resource.spi.ConnectionEvent.*;
 
-
 class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
 
-    private static Logger log = LoggerFactory.getLogger(OrientManagedConnectionImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(OrientManagedConnectionImpl.class);
 
-    private OrientManagedConnectionFactoryImpl mcf;
-    private OrientDB orientDB;
-    private ODatabasePool orientDBPool;
+    private final OrientManagedConnectionFactoryImpl mcf;
+    private final OrientDB orientDB;
+    private final ODatabasePool orientDBPool;
     private PrintWriter logWriter = new PrintWriter(System.out);
-    private List<ConnectionEventListener> listeners = new ArrayList<ConnectionEventListener>();
-    private ConnectionRequestInfo cri;
+    private final List<ConnectionEventListener> listeners = new ArrayList<>();
+    private final ConnectionRequestInfo cri;
     private OrientDatabaseConnectionImpl connection;
 
-
-    class OrientLocalTransaction implements LocalTransaction {
-
-        @Override
-        public void begin() throws ResourceException {
-            log.debug("begin()");
-            //db.begin();
-            fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
-        }
-
-        @Override
-        public void commit() throws ResourceException {
-            log.debug("commit()");
-            //db.commit();
-            fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
-        }
-
-        @Override
-        public void rollback() throws ResourceException {
-            log.debug("rollback()");
-            //db.rollback();
-            fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
-        }
-    }
+//    class OrientLocalTransaction implements LocalTransaction {
+//
+//        @Override
+//        public void begin() throws ResourceException {
+//            log.debug("begin()");
+//            //db.begin();
+//            fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
+//        }
+//
+//        @Override
+//        public void commit() throws ResourceException {
+//            log.debug("commit()");
+//            //db.commit();
+//            fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
+//        }
+//
+//        @Override
+//        public void rollback() throws ResourceException {
+//            log.debug("rollback()");
+//            //db.rollback();
+//            fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
+//        }
+//    }
 
     public OrientManagedConnectionImpl(OrientManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri){
         this.mcf = mcf;
@@ -65,7 +63,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     }
 
     @Override
-    public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+    public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
         log.debug("getConnection()");
         if(connection == null) {
             connection = new OrientDatabaseConnectionImpl(this);
@@ -74,14 +72,14 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     }
 
     @Override
-    public void destroy()  {
+    public void destroy() {
         log.debug("destroy()");
         orientDBPool.close();
         orientDB.close();
     }
 
     @Override
-    public void cleanup() throws ResourceException {
+    public void cleanup() {
         log.debug("cleanup()");
         this.connection = null;
     }
@@ -96,7 +94,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     }
 
     @Override
-    public void associateConnection(Object connection) throws ResourceException {
+    public void associateConnection(Object connection)  {
         log.debug("associateConnection()");
         this.connection = (OrientDatabaseConnectionImpl) connection;
     }
@@ -123,9 +121,10 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     }
 
     @Override
-    public LocalTransaction getLocalTransaction(){
-        log.debug("getLocalTransaction()");
-        return new OrientLocalTransaction();
+    public LocalTransaction getLocalTransaction() throws ResourceException{
+//        log.debug("getLocalTransaction()");
+//        return new OrientLocalTransaction();
+        throw new ResourceException("OrientDB resource adapter does not support local transactions");
     }
 
     @Override
@@ -155,8 +154,6 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
         };
 
     }
-
-
 
     /**
      * Do not close the underlying connection now, as it may be used in a container-managed

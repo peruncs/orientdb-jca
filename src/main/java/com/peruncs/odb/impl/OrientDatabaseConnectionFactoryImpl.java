@@ -13,8 +13,8 @@ public class OrientDatabaseConnectionFactoryImpl implements OrientDatabaseConnec
 
     private static final long serialVersionUID = 1L;
 
-    private OrientManagedConnectionFactory mcf;
-    private ConnectionManager cm;
+    private final OrientManagedConnectionFactory mcf;
+    private final ConnectionManager cm;
     private Reference reference;
     
     OrientDatabaseConnectionFactoryImpl(OrientManagedConnectionFactory mcf, ConnectionManager cm) {

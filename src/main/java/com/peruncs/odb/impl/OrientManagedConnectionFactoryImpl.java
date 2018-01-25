@@ -27,7 +27,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = LoggerFactory.getLogger(OrientManagedConnectionFactoryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(OrientManagedConnectionFactoryImpl.class);
     
     private PrintWriter logWriter = new PrintWriter(System.out);
 
@@ -63,7 +63,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     private final int hash;
 
     public OrientManagedConnectionFactoryImpl(){
-        hash = Objects.hash(ra,connectionUrl,serverUserName,serverPassword, dbName, dbUsername, dbPassword);
+        hash = Objects.hash(connectionUrl,serverUserName,serverPassword, dbName, dbUsername, dbPassword);
     }
     
     @Override
@@ -85,7 +85,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     }
 
     @Override
-    public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+    public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
         log.debug("creating managed connection: url {}, user: {}", connectionUrl, dbUsername);
         return new OrientManagedConnectionImpl(this, cxRequestInfo);
     }
@@ -131,6 +131,40 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
         return TransactionSupport.TransactionSupportLevel.LocalTransaction;
     }
 
+    @Override
+    public int hashCode() {
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        OrientManagedConnectionFactoryImpl other = (OrientManagedConnectionFactoryImpl) obj;
+
+        return     Objects.equals(connectionUrl,other.connectionUrl)
+                && Objects.equals(serverUserName,other.serverUserName)
+                && Objects.equals(serverPassword,other.serverPassword)
+                && Objects.equals(dbName,other.dbName)
+                && Objects.equals(dbUsername,other.dbUsername)
+                && Objects.equals(dbPassword,other.dbPassword)
+                ;
+    }
+
+    public int getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
     OrientDB newOrientDB(){
         OrientDB orientDb;
 
@@ -155,38 +189,4 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
         return dbType == null? ODatabaseType.MEMORY: ODatabaseType.valueOf(dbType);
     }
 
-    @Override
-    public int hashCode() {
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null) {
-            return false;
-        }
-
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        OrientManagedConnectionFactoryImpl other = (OrientManagedConnectionFactoryImpl) obj;
-
-        return     Objects.equals(ra,other.ra)
-                && Objects.equals(connectionUrl,other.connectionUrl)
-                && Objects.equals(serverUserName,other.serverUserName)
-                && Objects.equals(serverPassword,other.serverPassword)
-                && Objects.equals(dbName,other.dbName)
-                && Objects.equals(dbUsername,other.dbUsername)
-                && Objects.equals(dbPassword,other.dbPassword)
-                ;
-    }
-
-    public int getMaxPoolSize() {
-        return maxPoolSize;
-    }
 }
