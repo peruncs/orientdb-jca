@@ -30,6 +30,13 @@ public class OrientResourceAdapter implements ResourceAdapter {
 
     private OServer embeddedServer = null;
 
+    public void setEmbeddedServerConfiguration(String embeddedServerConfiguration) {
+        this.embeddedServerConfiguration = embeddedServerConfiguration;
+    }
+
+    public String getEmbeddedServerConfiguration() {
+        return embeddedServerConfiguration;
+    }
 
     @Override
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {

@@ -19,23 +19,27 @@ import java.util.Set;
 
 
 @ConnectionDefinition(
-    connectionFactory = OrientDatabaseConnectionFactory.class,
-    connectionFactoryImpl = OrientDatabaseConnectionFactoryImpl.class, 
-    connection = OrientDatabaseConnection.class,
-    connectionImpl = OrientDatabaseConnectionImpl.class)
+        connectionFactory = OrientDatabaseConnectionFactory.class,
+        connectionFactoryImpl = OrientDatabaseConnectionFactoryImpl.class,
+        connection = OrientDatabaseConnection.class,
+        connectionImpl = OrientDatabaseConnectionImpl.class)
 public class OrientManagedConnectionFactoryImpl implements OrientManagedConnectionFactory {
 
     private static final long serialVersionUID = 1L;
 
     private static final Log log = LogFactory.getLog(OrientManagedConnectionFactoryImpl.class);
-    
+
     private PrintWriter logWriter = new PrintWriter(System.out);
 
     private OrientResourceAdapter ra;
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
     @ConfigProperty
     private String connectionUrl;
-    
+
     @ConfigProperty
     private String serverUserName;
 
@@ -46,33 +50,103 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     private String dbName;
 
     @ConfigProperty
-    private String dbType ;
+    private String dbType;
 
     @ConfigProperty
     private String dbUsername;
-    
+
     @ConfigProperty
     private String dbPassword;
 
-    @ConfigProperty
-    private int maxPoolSize =0 ;
+    @ConfigProperty(type = Integer.class)
+    private Integer maxPoolSize = 0;
 
-    @ConfigProperty
-    private boolean createDbIfMissing = true;
+    @ConfigProperty(type = Boolean.class)
+    private Boolean createDbIfMissing = true;
 
-    private final int hash;
-
-    public OrientManagedConnectionFactoryImpl(){
-        hash = Objects.hash(connectionUrl,serverUserName,serverPassword, dbName, dbUsername, dbPassword);
+    public String getConnectionUrl() {
+        return connectionUrl;
     }
-    
+
+    public void setConnectionUrl(String connectionUrl) {
+        this.connectionUrl = connectionUrl;
+    }
+
+    public String getServerUserName() {
+        return serverUserName;
+    }
+
+    public void setServerUserName(String serverUserName) {
+        this.serverUserName = serverUserName;
+    }
+
+    public String getServerPassword() {
+        return serverPassword;
+    }
+
+    public void setServerPassword(String serverPassword) {
+        this.serverPassword = serverPassword;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
+    }
+
+    public String getDbType() {
+        return dbType;
+    }
+
+    public String getDbUsername() {
+        return dbUsername;
+    }
+
+    public void setDbUsername(String dbUsername) {
+        this.dbUsername = dbUsername;
+    }
+
+    public String getDbPassword() {
+        return dbPassword;
+    }
+
+    public void setDbPassword(String dbPassword) {
+        this.dbPassword = dbPassword;
+    }
+
+    public Integer getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
+    public void setMaxPoolSize(Integer maxPoolSize) {
+        this.maxPoolSize = maxPoolSize;
+    }
+
+    public Boolean getCreateDbIfMissing() {
+        return createDbIfMissing;
+    }
+
+    public void setCreateDbIfMissing(Boolean createDbIfMissing) {
+        this.createDbIfMissing = createDbIfMissing;
+    }
+
+    public OrientManagedConnectionFactoryImpl() {
+        Objects.hash(connectionUrl, serverUserName, serverPassword, dbName, dbUsername, dbPassword);
+    }
+
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory, url: "+connectionUrl+",  user: "+ dbUsername);
+        log.debug("creating managed connection factory, url: " + connectionUrl + ",  user: " + dbUsername);
         validate();
         return new OrientDatabaseConnectionFactoryImpl(this, cxManager);
     }
-    
+
     private void validate() throws ResourceException {
         if (connectionUrl == null || connectionUrl.trim().isEmpty()) {
             throw new ResourceException("configuration property [connectionUrl] must not be empty");
@@ -86,13 +160,13 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.debug("creating managed connection, url: "+connectionUrl+",  user: "+ dbUsername);
+        log.debug("creating managed connection, url: " + connectionUrl + ",  user: " + dbUsername);
         return new OrientManagedConnectionImpl(this, cxRequestInfo);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked", "resource" })
+    @SuppressWarnings({"rawtypes", "unchecked", "resource"})
     @Override
-    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo){
+    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo) {
 
         for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
             if (connection instanceof OrientManagedConnectionImpl) {
@@ -107,7 +181,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     }
 
     @Override
-    public void setLogWriter(PrintWriter out)  {
+    public void setLogWriter(PrintWriter out) {
         this.logWriter = out;
     }
 
@@ -122,7 +196,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     }
 
     @Override
-    public void setResourceAdapter(ResourceAdapter ra)  {
+    public void setResourceAdapter(ResourceAdapter ra) {
         this.ra = (OrientResourceAdapter) ra;
     }
 
@@ -133,7 +207,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     @Override
     public int hashCode() {
-        return hash;
+        return Objects.hash(connectionUrl, serverUserName, serverPassword, dbName, dbUsername, dbPassword);
     }
 
     @Override
@@ -152,41 +226,38 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
         OrientManagedConnectionFactoryImpl other = (OrientManagedConnectionFactoryImpl) obj;
 
-        return     Objects.equals(connectionUrl,other.connectionUrl)
-                && Objects.equals(serverUserName,other.serverUserName)
-                && Objects.equals(serverPassword,other.serverPassword)
-                && Objects.equals(dbName,other.dbName)
-                && Objects.equals(dbUsername,other.dbUsername)
-                && Objects.equals(dbPassword,other.dbPassword)
+        return Objects.equals(connectionUrl, other.connectionUrl)
+                && Objects.equals(serverUserName, other.serverUserName)
+                && Objects.equals(serverPassword, other.serverPassword)
+                && Objects.equals(dbName, other.dbName)
+                && Objects.equals(dbUsername, other.dbUsername)
+                && Objects.equals(dbPassword, other.dbPassword)
                 ;
     }
 
-    int getMaxPoolSize() {
-        return maxPoolSize;
-    }
 
-    OrientDB newOrientDB(){
+    OrientDB newOrientDB() {
         OrientDB orientDb;
 
-        if(serverUserName!=null && serverPassword!=null) {
+        if (serverUserName != null && serverPassword != null) {
             orientDb = new OrientDB(connectionUrl, serverUserName, serverPassword, OrientDBConfig.defaultConfig());
-        }else {
+        } else {
             orientDb = new OrientDB(connectionUrl, OrientDBConfig.defaultConfig());
         }
 
-        if(createDbIfMissing){
-            orientDb.createIfNotExists(dbName,getDbType()) ;
+        if (createDbIfMissing!=null && createDbIfMissing) {
+            orientDb.createIfNotExists(dbName, inferDbType());
         }
 
         return orientDb;
     }
 
-    ODatabasePool newOrientDBPool(OrientDB orientDB){
-        return new ODatabasePool(orientDB,dbName,dbUsername,dbPassword);
+    ODatabasePool newOrientDBPool(OrientDB orientDB) {
+        return new ODatabasePool(orientDB, dbName, dbUsername, dbPassword);
     }
 
-    private ODatabaseType getDbType(){
-        return dbType == null? ODatabaseType.MEMORY: ODatabaseType.valueOf(dbType);
+    public ODatabaseType inferDbType() {
+        return dbType == null ? ODatabaseType.MEMORY : ODatabaseType.valueOf(dbType);
     }
 
 }
