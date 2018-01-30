@@ -2,13 +2,13 @@ package com.peruncs.odb.impl;
 
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.peruncs.odb.api.OrientDatabaseConnection;
+import com.peruncs.odb.api.ODBConnection;
 
-public class OrientDatabaseConnectionImpl implements OrientDatabaseConnection {
+public class ODBConnectionImpl implements ODBConnection {
 
-    private final OrientManagedConnectionImpl mc;
+    private final ODBManagedConnectionImpl mc;
 
-    OrientDatabaseConnectionImpl( OrientManagedConnectionImpl mc) {
+    ODBConnectionImpl(ODBManagedConnectionImpl mc) {
         this.mc = mc;
     }
 

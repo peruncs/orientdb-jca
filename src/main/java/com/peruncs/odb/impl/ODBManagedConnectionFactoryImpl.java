@@ -4,9 +4,9 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.peruncs.odb.api.OrientDatabaseConnection;
-import com.peruncs.odb.api.OrientDatabaseConnectionFactory;
-import com.peruncs.odb.api.OrientManagedConnectionFactory;
+import com.peruncs.odb.api.ODBConnection;
+import com.peruncs.odb.api.ODBConnectionFactory;
+import com.peruncs.odb.api.ODBManagedConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -19,19 +19,19 @@ import java.util.Set;
 
 
 @ConnectionDefinition(
-        connectionFactory = OrientDatabaseConnectionFactory.class,
-        connectionFactoryImpl = OrientDatabaseConnectionFactoryImpl.class,
-        connection = OrientDatabaseConnection.class,
-        connectionImpl = OrientDatabaseConnectionImpl.class)
-public class OrientManagedConnectionFactoryImpl implements OrientManagedConnectionFactory {
+        connectionFactory = ODBConnectionFactory.class,
+        connectionFactoryImpl = ODBConnectionFactoryImpl.class,
+        connection = ODBConnection.class,
+        connectionImpl = ODBConnectionImpl.class)
+public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFactory {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Log log = LogFactory.getLog(OrientManagedConnectionFactoryImpl.class);
+    private static final Log log = LogFactory.getLog(ODBManagedConnectionFactoryImpl.class);
 
     private PrintWriter logWriter = new PrintWriter(System.out);
 
-    private OrientResourceAdapter ra;
+    private ODBResourceAdapter ra;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -136,7 +136,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
         this.createDbIfMissing = createDbIfMissing;
     }
 
-    public OrientManagedConnectionFactoryImpl() {
+    public ODBManagedConnectionFactoryImpl() {
         Objects.hash(connectionUrl, serverUserName, serverPassword, dbName, dbUsername, dbPassword);
     }
 
@@ -144,7 +144,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
         log.debug("creating managed connection factory, url: " + connectionUrl + ",  user: " + dbUsername);
         validate();
-        return new OrientDatabaseConnectionFactoryImpl(this, cxManager);
+        return new ODBConnectionFactoryImpl(this, cxManager);
     }
 
     private void validate() throws ResourceException {
@@ -161,7 +161,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
         log.debug("creating managed connection, url: " + connectionUrl + ",  user: " + dbUsername);
-        return new OrientManagedConnectionImpl(this, cxRequestInfo);
+        return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked", "resource"})
@@ -169,8 +169,8 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
     public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo) {
 
         for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
-            if (connection instanceof OrientManagedConnectionImpl) {
-                OrientManagedConnectionImpl orientConnection = (OrientManagedConnectionImpl) connection;
+            if (connection instanceof ODBManagedConnectionImpl) {
+                ODBManagedConnectionImpl orientConnection = (ODBManagedConnectionImpl) connection;
                 ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
                 if (cri == null || cri.equals(cxRequestInfo)) {
                     return connection;
@@ -197,7 +197,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
 
     @Override
     public void setResourceAdapter(ResourceAdapter ra) {
-        this.ra = (OrientResourceAdapter) ra;
+        this.ra = (ODBResourceAdapter) ra;
     }
 
     @Override
@@ -224,7 +224,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
             return false;
         }
 
-        OrientManagedConnectionFactoryImpl other = (OrientManagedConnectionFactoryImpl) obj;
+        ODBManagedConnectionFactoryImpl other = (ODBManagedConnectionFactoryImpl) obj;
 
         return Objects.equals(connectionUrl, other.connectionUrl)
                 && Objects.equals(serverUserName, other.serverUserName)
@@ -245,7 +245,7 @@ public class OrientManagedConnectionFactoryImpl implements OrientManagedConnecti
             orientDb = new OrientDB(connectionUrl, OrientDBConfig.defaultConfig());
         }
 
-        if (createDbIfMissing!=null && createDbIfMissing) {
+        if (Boolean.TRUE.equals(createDbIfMissing)) {
             orientDb.createIfNotExists(dbName, inferDbType());
         }
 

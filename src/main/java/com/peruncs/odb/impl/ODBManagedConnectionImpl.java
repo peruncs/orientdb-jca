@@ -4,6 +4,7 @@ package com.peruncs.odb.impl;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
+import com.peruncs.odb.api.ODBManagedConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,17 +19,17 @@ import java.util.List;
 
 import static javax.resource.spi.ConnectionEvent.*;
 
-class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
+class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
 
-    private static final Log log = LogFactory.getLog(OrientManagedConnectionImpl.class);
+    private static final Log log = LogFactory.getLog(ODBManagedConnectionImpl.class);
 
-    private final OrientManagedConnectionFactoryImpl mcf;
+    private final ODBManagedConnectionFactoryImpl mcf;
     private final OrientDB orientDB;
     private final ODatabasePool orientDBPool;
     private PrintWriter logWriter = new PrintWriter(System.out);
     private final List<ConnectionEventListener> listeners = new ArrayList<>();
     private final ConnectionRequestInfo cri;
-    private OrientDatabaseConnectionImpl connection;
+    private ODBConnectionImpl connection;
 
 //    class OrientLocalTransaction implements LocalTransaction {
 //
@@ -54,7 +55,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
 //        }
 //    }
 
-    public OrientManagedConnectionImpl(OrientManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri){
+    public ODBManagedConnectionImpl(ODBManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri){
         this.mcf = mcf;
         this.cri = cri;
         orientDB = mcf.newOrientDB();
@@ -66,7 +67,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
         log.debug("getConnection()");
         if(connection == null) {
-            connection = new OrientDatabaseConnectionImpl(this);
+            connection = new ODBConnectionImpl(this);
         }
         return connection;
     }
@@ -96,7 +97,7 @@ class OrientManagedConnectionImpl implements ManagedConnection, Closeable {
     @Override
     public void associateConnection(Object connection)  {
         log.debug("associateConnection()");
-        this.connection = (OrientDatabaseConnectionImpl) connection;
+        this.connection = (ODBConnectionImpl) connection;
     }
 
     @Override

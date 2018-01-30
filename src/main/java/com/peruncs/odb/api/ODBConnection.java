@@ -8,7 +8,7 @@ import java.io.Closeable;
 
 
 
-public interface OrientDatabaseConnection extends Closeable {
+public interface ODBConnection extends Closeable {
     OrientDB getOrientDB();
     ODatabasePool getOrientDBPool();
     void close();
