@@ -32,7 +32,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
     private OServer embeddedServer = null;
     private final String orientdbHome;
 
-    public ODBResourceAdapter(){
+    public ODBResourceAdapter() {
         orientdbHome = new File("").getAbsolutePath(); //Set OrientDB home to current directory
         System.setProperty("ORIENTDB_HOME", orientdbHome);
     }
@@ -56,7 +56,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
             embeddedServer.activate();
             logInfo("Successfully started");
         } catch (Exception e) {
-            logError("Failed to start",e);
+            logError("Failed to start", e);
             throw new ResourceAdapterInternalException(e);
         }
 
@@ -64,16 +64,11 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     @Override
     public void stop() {
-        log.info("Stopping");
-        if (embeddedServer != null && embeddedServer.isActive()) {
-            try {
-                embeddedServer.shutdown();
-                logInfo("Successfully stopped");
-            } catch (Exception e) {
-                logError("Failed to stop",e);
-            }
-        }else{
-            logInfo("Embedded server was not active or instantiated ");
+        //logInfo("Stopping");
+        //if (embeddedServer != null && embeddedServer.isActive()) {
+        if (embeddedServer != null) {
+            embeddedServer.shutdown();
+            // logInfo("Successfully stopped");
         }
     }
 
@@ -115,12 +110,12 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     }
 
-    private void logError(String message, Throwable e){
-        log.error(message+" OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome, e);
+    private void logError(String message, Throwable e) {
+        log.error(message + " OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome, e);
     }
 
-    private void logInfo(String message){
-        log.error(message+" OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome);
+    private void logInfo(String message) {
+        log.error(message + " OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome);
     }
 
 }

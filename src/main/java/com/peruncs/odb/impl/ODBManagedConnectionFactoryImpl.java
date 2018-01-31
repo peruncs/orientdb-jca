@@ -137,7 +137,6 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     }
 
     public ODBManagedConnectionFactoryImpl() {
-        Objects.hash(connectionUrl, serverUserName, serverPassword, dbName, dbUsername, dbPassword);
     }
 
     @Override
