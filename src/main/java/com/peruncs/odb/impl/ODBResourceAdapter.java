@@ -2,6 +2,8 @@ package com.peruncs.odb.impl;
 
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
+import com.orientechnologies.orient.server.network.OServerNetworkListener;
+import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -9,7 +11,9 @@ import javax.resource.spi.*;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 import java.io.File;
+import java.util.Map;
 import java.util.Objects;
+
 
 
 @Connector(
@@ -29,12 +33,13 @@ public class ODBResourceAdapter implements ResourceAdapter {
     @ConfigProperty(description = "OrientDB Embedded Server Configuration")
     private String embeddedServerConfiguration;
 
+    @ConfigProperty(description = "OrientDB Embedded Server Home")
+    private String orientdbHome;
+
     private OServer embeddedServer = null;
-    private final String orientdbHome;
 
     public ODBResourceAdapter() {
-        orientdbHome = new File("").getAbsolutePath(); //Set OrientDB home to current directory
-        System.setProperty("ORIENTDB_HOME", orientdbHome);
+        setOrientdbHome(new File("").getAbsolutePath()); //Set default OrientDB home to current directory
     }
 
     public void setEmbeddedServerConfiguration(String embeddedServerConfiguration) {
@@ -45,18 +50,48 @@ public class ODBResourceAdapter implements ResourceAdapter {
         return embeddedServerConfiguration;
     }
 
+    public String getOrientdbHome() {
+        return orientdbHome;
+    }
+
+    public void setOrientdbHome(String orientdbHome) {
+        this.orientdbHome = orientdbHome;
+        System.setProperty("ORIENTDB_HOME", orientdbHome);
+    }
+
     @Override
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
 
-        log.info("Starting");
-
+        log.info("ODB-JCA resource adapter starting ...");
+        log.info("ODB-JCA server configuration: " + getEmbeddedServerConfiguration());
+        log.info("ODB-JCA server home: " + getOrientdbHome());
         if (embeddedServerConfiguration != null) try {
             embeddedServer = OServerMain.create(true);
             embeddedServer.startup(new File(embeddedServerConfiguration));
             embeddedServer.activate();
-            logInfo("Successfully started");
+
+            log.info("ODB-JCA database directory: " + embeddedServer.getDatabaseDirectory());
+            log.info("ODB-JCA server id: " + embeddedServer.getServerId());
+            log.info("ODB-JCA server activated: " + embeddedServer.isActive());
+
+            Map<String, String> storageNames = embeddedServer.getAvailableStorageNames();
+            if (storageNames != null) {
+                storageNames.forEach((String k, String v) -> log.info("ODB-JCA storage: " + k + ", " + v));
+            }
+
+            Map<String, Class<? extends ONetworkProtocol>> networkProtocols = embeddedServer.getNetworkProtocols();
+            if (networkProtocols != null) {
+                networkProtocols.forEach((String k, Class<? extends ONetworkProtocol> v) -> {
+                    log.info("ODB-JCA network protocol name: " + k + ", " + v.getSimpleName());
+                    OServerNetworkListener l = embeddedServer.getListenerByProtocol(v);
+                    log.info("ODB-JCA protocol listener inbound addr: "+l.getInboundAddr() + ", active:" + l.isActive() + ", alive:" + l.isAlive());
+                });
+            }
+
+            log.info("ODB-JCA resource adapter successfully started");
+
         } catch (Exception e) {
-            logError("Failed to start", e);
+            log.error("ODB-JCA resource adapter failed to start", e);
             throw new ResourceAdapterInternalException(e);
         }
 
@@ -64,7 +99,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     @Override
     public void stop() {
-        //logInfo("Stopping");
+        log.info("Stopping ODB resource adapter");
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
@@ -108,14 +143,6 @@ public class ODBResourceAdapter implements ResourceAdapter {
         ODBResourceAdapter other = (ODBResourceAdapter) obj;
         return Objects.equals(embeddedServerConfiguration, other.embeddedServerConfiguration);
 
-    }
-
-    private void logError(String message, Throwable e) {
-        log.error(message + " OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome, e);
-    }
-
-    private void logInfo(String message) {
-        log.error(message + " OrientDB embedded server, embedded server configuration: " + embeddedServerConfiguration + ", home: " + orientdbHome);
     }
 
 }
