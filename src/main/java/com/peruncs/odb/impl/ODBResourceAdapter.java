@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 
 
-
 @Connector(
         transactionSupport = TransactionSupport.TransactionSupportLevel.NoTransaction,
         version = "1.0",
@@ -84,7 +83,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
                 networkProtocols.forEach((String k, Class<? extends ONetworkProtocol> v) -> {
                     log.info("ODB-JCA network protocol name: " + k + ", " + v.getSimpleName());
                     OServerNetworkListener l = embeddedServer.getListenerByProtocol(v);
-                    log.info("ODB-JCA protocol listener inbound addr: "+l.getInboundAddr() + ", active:" + l.isActive() + ", alive:" + l.isAlive());
+                    log.info("ODB-JCA protocol listener inbound addr: " + l.getInboundAddr() + ", active:" + l.isActive() + ", alive:" + l.isAlive());
                 });
             }
 
@@ -99,11 +98,11 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     @Override
     public void stop() {
-        log.info("Stopping ODB resource adapter");
+        log.info("ODB-JCA resource adapter stopping ...");
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
-            // logInfo("Successfully stopped");
+            log.info("ODB-JCA resource adapter stopped");
         }
     }
 

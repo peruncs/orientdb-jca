@@ -41,22 +41,16 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     private String connectionUrl;
 
     @ConfigProperty
-    private String serverUserName;
-
-    @ConfigProperty
-    private String serverPassword;
-
-    @ConfigProperty
     private String dbName;
 
     @ConfigProperty
     private String dbType;
 
     @ConfigProperty
-    private String dbUsername;
+    private String userName;
 
     @ConfigProperty
-    private String dbPassword;
+    private String password;
 
     @ConfigProperty(type = Integer.class)
     private Integer maxPoolSize = 0;
@@ -70,22 +64,6 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     public void setConnectionUrl(String connectionUrl) {
         this.connectionUrl = connectionUrl;
-    }
-
-    public String getServerUserName() {
-        return serverUserName;
-    }
-
-    public void setServerUserName(String serverUserName) {
-        this.serverUserName = serverUserName;
-    }
-
-    public String getServerPassword() {
-        return serverPassword;
-    }
-
-    public void setServerPassword(String serverPassword) {
-        this.serverPassword = serverPassword;
     }
 
     public String getDbName() {
@@ -104,20 +82,20 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         return dbType;
     }
 
-    public String getDbUsername() {
-        return dbUsername;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setDbUsername(String dbUsername) {
-        this.dbUsername = dbUsername;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getDbPassword() {
-        return dbPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setDbPassword(String dbPassword) {
-        this.dbPassword = dbPassword;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Integer getMaxPoolSize() {
@@ -141,7 +119,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory, url: " + connectionUrl + ",  user: " + dbUsername);
+        log.debug("creating managed connection factory, url: " + connectionUrl + ",  user: " + userName);
         validate();
         return new ODBConnectionFactoryImpl(this, cxManager);
     }
@@ -159,7 +137,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.debug("creating managed connection, url: " + connectionUrl + ",  user: " + dbUsername);
+        log.debug("creating managed connection, url: " + connectionUrl + ",  user: " + userName);
         return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
@@ -170,8 +148,8 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
             if (connection instanceof ODBManagedConnectionImpl) {
                 ODBManagedConnectionImpl orientConnection = (ODBManagedConnectionImpl) connection;
-                ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
-                if (cri == null || cri.equals(cxRequestInfo)) {
+                ConnectionRequestInfo cri =  orientConnection.getConnectionRequestInfo();
+                if (Objects.equals(cri,cxRequestInfo)) {
                     return connection;
                 }
             }
@@ -206,7 +184,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public int hashCode() {
-        return Objects.hash(connectionUrl, serverUserName, serverPassword, dbName, dbUsername, dbPassword);
+        return Objects.hash(connectionUrl, dbName, userName, password);
     }
 
     @Override
@@ -226,11 +204,9 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         ODBManagedConnectionFactoryImpl other = (ODBManagedConnectionFactoryImpl) obj;
 
         return Objects.equals(connectionUrl, other.connectionUrl)
-                && Objects.equals(serverUserName, other.serverUserName)
-                && Objects.equals(serverPassword, other.serverPassword)
                 && Objects.equals(dbName, other.dbName)
-                && Objects.equals(dbUsername, other.dbUsername)
-                && Objects.equals(dbPassword, other.dbPassword)
+                && Objects.equals(userName, other.userName)
+                && Objects.equals(password, other.password)
                 ;
     }
 
@@ -238,8 +214,8 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     OrientDB newOrientDB() {
         OrientDB orientDb;
 
-        if (serverUserName != null && serverPassword != null) {
-            orientDb = new OrientDB(connectionUrl, serverUserName, serverPassword, OrientDBConfig.defaultConfig());
+        if (userName != null && password != null) {
+            orientDb = new OrientDB(connectionUrl, userName, password, OrientDBConfig.defaultConfig());
         } else {
             orientDb = new OrientDB(connectionUrl, OrientDBConfig.defaultConfig());
         }
@@ -252,7 +228,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     }
 
     ODatabasePool newOrientDBPool(OrientDB orientDB) {
-        return new ODatabasePool(orientDB, dbName, dbUsername, dbPassword);
+        return new ODatabasePool(orientDB, dbName, userName, password);
     }
 
     public ODatabaseType inferDbType() {
