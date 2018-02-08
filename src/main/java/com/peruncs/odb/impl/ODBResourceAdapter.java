@@ -105,7 +105,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
         pool.forEach((k, v) -> {
             v.close();
-            log.info("ODB-JCA closed database pool" + k);
+            log.info("ODB-JCA closed database pool: " + k);
         });
 
         //if (embeddedServer != null && embeddedServer.isActive()) {

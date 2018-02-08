@@ -184,7 +184,10 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     ODatabaseSession newSession() {
         return ra.getPool()
-                .computeIfAbsent(url, k -> new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig()))
+                .computeIfAbsent(url, k -> {
+                    log.info("ODB-JCA created database pool: " + k);
+                    return new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
+                })
                 .acquire();
     }
 
