@@ -2,8 +2,7 @@ package com.peruncs.odb.impl;
 
 
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.peruncs.odb.api.ODBManagedConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,44 +22,23 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
 
     private static final Log log = LogFactory.getLog(ODBManagedConnectionImpl.class);
 
+    private final ODatabaseSession session;
     private final ODBManagedConnectionFactoryImpl mcf;
-    private final OrientDB orientDB;
-    private final ODatabasePool orientDBPool;
     private PrintWriter logWriter = new PrintWriter(System.out);
     private final List<ConnectionEventListener> listeners = new ArrayList<>();
     private final ConnectionRequestInfo cri;
     private ODBConnectionImpl connection;
 
-//    class OrientLocalTransaction implements LocalTransaction {
-//
-//        @Override
-//        public void begin() throws ResourceException {
-//            log.debug("begin()");
-//            //db.begin();
-//            fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
-//        }
-//
-//        @Override
-//        public void commit() throws ResourceException {
-//            log.debug("commit()");
-//            //db.commit();
-//            fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
-//        }
-//
-//        @Override
-//        public void rollback() throws ResourceException {
-//            log.debug("rollback()");
-//            //db.rollback();
-//            fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
-//        }
-//    }
-
     public ODBManagedConnectionImpl(ODBManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri){
         this.mcf = mcf;
         this.cri = cri;
-        orientDB = mcf.newOrientDB();
-        orientDBPool = mcf.newOrientDBPool(orientDB);
+        session = mcf.newSession();
+    }
 
+    @Override
+    public void destroy() {
+        log.debug("destroy()");
+        session.close();
     }
 
     @Override
@@ -72,11 +50,8 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
         return connection;
     }
 
-    @Override
-    public void destroy() {
-        log.debug("destroy()");
-        orientDBPool.close();
-        orientDB.close();
+    ODatabaseSession getSession() {
+        return session;
     }
 
     @Override
@@ -85,13 +60,10 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
         this.connection = null;
     }
 
-
-    OrientDB getOrientDB() {
-        return orientDB;
-    }
-
-    ODatabasePool getOrientDBPool() {
-        return orientDBPool;
+    @Override
+    public LocalTransaction getLocalTransaction() {
+        log.debug("getLocalTransaction()");
+        return new OrientLocalTransaction();
     }
 
     @Override
@@ -121,11 +93,28 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
         throw new ResourceException("OrientDB resource adapter does not support XA transactions");
     }
 
-    @Override
-    public LocalTransaction getLocalTransaction() throws ResourceException{
-//        log.debug("getLocalTransaction()");
-//        return new OrientLocalTransaction();
-        throw new ResourceException("OrientDB resource adapter does not support local transactions");
+    class OrientLocalTransaction implements LocalTransaction {
+
+        @Override
+        public void begin() {
+            log.debug("begin()");
+            session.begin();
+            fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
+        }
+
+        @Override
+        public void commit() {
+            log.debug("commit()");
+            session.commit();
+            fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
+        }
+
+        @Override
+        public void rollback() {
+            log.debug("rollback()");
+            session.rollback();
+            fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
+        }
     }
 
     @Override
@@ -194,8 +183,6 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
             }
         }
     }
-
-
 
     public ConnectionRequestInfo getConnectionRequestInfo() {
         return cri;

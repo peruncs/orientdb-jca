@@ -1,8 +1,7 @@
 package com.peruncs.odb.impl;
 
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.peruncs.odb.api.ODBConnection;
 import com.peruncs.odb.api.ODBConnectionFactory;
@@ -34,13 +33,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     private ODBResourceAdapter ra;
 
     @ConfigProperty
-    private String connectionUrl;
-
-    @ConfigProperty
-    private String dbName;
-
-    @ConfigProperty
-    private String dbType;
+    private String url;
 
     @ConfigProperty
     private String username;
@@ -51,31 +44,13 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     @ConfigProperty(type = Integer.class)
     private Integer maxPoolSize = 0;
 
-    @ConfigProperty(type = Boolean.class)
-    private Boolean createDbIfMissing = true;
 
-    public String getConnectionUrl() {
-        return connectionUrl;
+    public String getUrl() {
+        return url;
     }
 
-    public void setConnectionUrl(String connectionUrl) {
-        this.connectionUrl = connectionUrl;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public void setDbType(String dbType) {
-        this.dbType = dbType;
-    }
-
-    public String getDbType() {
-        return dbType;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getUsername() {
@@ -102,28 +77,30 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         this.maxPoolSize = maxPoolSize;
     }
 
-    public Boolean getCreateDbIfMissing() {
-        return createDbIfMissing;
-    }
-
-    public void setCreateDbIfMissing(Boolean createDbIfMissing) {
-        this.createDbIfMissing = createDbIfMissing;
-    }
-
     public ODBManagedConnectionFactoryImpl() {
     }
 
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory, url: " + connectionUrl + ",  user: " + username);
+        log.debug("creating managed connection factory, url: " + url + ",  user: " + username);
         validate();
         return new ODBConnectionFactoryImpl(this, cxManager);
     }
 
     private void validate() throws ResourceException {
-        if (connectionUrl == null || connectionUrl.trim().isEmpty()) {
-            throw new ResourceException("configuration property [connectionUrl] must not be empty");
+
+        if (url == null || url.trim().isEmpty()) {
+            throw new ResourceException("configuration property [url] must not be empty");
         }
+
+        if (username == null || username.trim().isEmpty()) {
+            throw new ResourceException("configuration property [username] must not be empty");
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            throw new ResourceException("configuration property [password] must not be empty");
+        }
+
     }
 
     @Override
@@ -133,7 +110,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.debug("creating managed connection, url: " + connectionUrl + ",  user: " + username);
+        log.debug("creating managed connection, url: " + url + ",  user: " + username);
         return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
@@ -175,12 +152,12 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public TransactionSupport.TransactionSupportLevel getTransactionSupport() {
-        return TransactionSupport.TransactionSupportLevel.LocalTransaction;
+        return TransactionSupportLevel.LocalTransaction;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(connectionUrl, dbName, username, password);
+        return Objects.hash(url, username, password);
     }
 
     @Override
@@ -199,36 +176,16 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
         ODBManagedConnectionFactoryImpl other = (ODBManagedConnectionFactoryImpl) obj;
 
-        return Objects.equals(connectionUrl, other.connectionUrl)
-                && Objects.equals(dbName, other.dbName)
+        return Objects.equals(url, other.url)
                 && Objects.equals(username, other.username)
                 && Objects.equals(password, other.password)
                 ;
     }
 
-
-    OrientDB newOrientDB() {
-        OrientDB orientDb;
-
-        if (username != null && password != null) {
-            orientDb = new OrientDB(connectionUrl, username, password, OrientDBConfig.defaultConfig());
-        } else {
-            orientDb = new OrientDB(connectionUrl, OrientDBConfig.defaultConfig());
-        }
-
-        if (Boolean.TRUE.equals(createDbIfMissing)) {
-            orientDb.createIfNotExists(dbName, inferDbType());
-        }
-
-        return orientDb;
-    }
-
-    ODatabasePool newOrientDBPool(OrientDB orientDB) {
-        return new ODatabasePool(orientDB, dbName, username, password);
-    }
-
-    public ODatabaseType inferDbType() {
-        return dbType == null ? ODatabaseType.MEMORY : ODatabaseType.valueOf(dbType);
+    ODatabaseSession newSession() {
+        return ra.getPool()
+                .computeIfAbsent(url, k -> new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig()))
+                .acquire();
     }
 
 }

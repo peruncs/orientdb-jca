@@ -1,7 +1,6 @@
 package com.peruncs.odb.impl;
 
-import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.peruncs.odb.api.ODBConnection;
 
 public class ODBConnectionImpl implements ODBConnection {
@@ -13,14 +12,10 @@ public class ODBConnectionImpl implements ODBConnection {
     }
 
     @Override
-    public OrientDB getOrientDB(){
-        return mc.getOrientDB();
+    public ODatabaseSession getSession() {
+        return mc.getSession();
     }
 
-    @Override
-    public ODatabasePool getOrientDBPool(){
-        return mc.getOrientDBPool();
-    }
 
     @Override
     public void close() {

@@ -1,5 +1,6 @@
 package com.peruncs.odb.impl;
 
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
@@ -13,16 +14,16 @@ import javax.transaction.xa.XAResource;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Connector(
-        transactionSupport = TransactionSupport.TransactionSupportLevel.NoTransaction,
+        transactionSupport = TransactionSupport.TransactionSupportLevel.LocalTransaction,
         version = "1.0",
         vendorName = "PerunCS",
         displayName = "OrientDB",
         description = "Java JCA 1.7 adapter for OrientDB 3+. See https://github.com/peruncs/orientdb-jca ",
         eisType = "Database")
-
 public class ODBResourceAdapter implements ResourceAdapter {
 
     private static final Log log = LogFactory.getLog(ODBResourceAdapter.class);
@@ -36,6 +37,8 @@ public class ODBResourceAdapter implements ResourceAdapter {
     private String orientdbHome;
 
     private OServer embeddedServer = null;
+
+    private final Map<String, ODatabasePool> pool = new ConcurrentHashMap<>();
 
     public ODBResourceAdapter() {
         setOrientdbHome(new File("").getAbsolutePath()); //Set default OrientDB home to current directory
@@ -99,11 +102,18 @@ public class ODBResourceAdapter implements ResourceAdapter {
     @Override
     public void stop() {
         log.info("ODB-JCA resource adapter stopping ...");
+
+        pool.forEach((k, v) -> {
+            v.close();
+            log.info("ODB-JCA closed database pool" + k);
+        });
+
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
-            log.info("ODB-JCA resource adapter stopped");
+            log.info("ODB-JCA embedded server stopped");
         }
+        log.info("ODB-JCA resource adapter stopped");
     }
 
     @Override
@@ -144,4 +154,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     }
 
+    Map<String, ODatabasePool> getPool() {
+        return pool;
+    }
 }
