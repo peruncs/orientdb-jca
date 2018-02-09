@@ -3,7 +3,6 @@ package com.peruncs.odb.impl;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.peruncs.odb.api.ODBConnection;
 import com.peruncs.odb.api.ODBConnectionFactory;
 import com.peruncs.odb.api.ODBManagedConnectionFactory;
 import org.apache.commons.logging.Log;
@@ -20,8 +19,8 @@ import java.util.Set;
 @ConnectionDefinition(
         connectionFactory = ODBConnectionFactory.class,
         connectionFactoryImpl = ODBConnectionFactoryImpl.class,
-        connection = ODBConnection.class,
-        connectionImpl = ODBConnectionImpl.class)
+        connection = ODatabaseSession.class,
+        connectionImpl = ODatabaseSession.class)
 public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFactory {
 
     private static final long serialVersionUID = 1L;
@@ -148,11 +147,6 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     @Override
     public void setResourceAdapter(ResourceAdapter ra) {
         this.ra = (ODBResourceAdapter) ra;
-    }
-
-    @Override
-    public TransactionSupport.TransactionSupportLevel getTransactionSupport() {
-        return TransactionSupportLevel.LocalTransaction;
     }
 
     @Override

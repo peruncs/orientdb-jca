@@ -1,6 +1,6 @@
 package com.peruncs.odb.impl;
 
-import com.peruncs.odb.api.ODBConnection;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.peruncs.odb.api.ODBConnectionFactory;
 import com.peruncs.odb.api.ODBManagedConnectionFactory;
 
@@ -33,7 +33,7 @@ public class ODBConnectionFactoryImpl implements ODBConnectionFactory {
     }
 
     @Override
-    public ODBConnection createConnection() throws ResourceException {
-        return (ODBConnection) cm.allocateConnection(mcf, null);
+    public ODatabaseSession createSession() throws ResourceException {
+        return (ODatabaseSession) cm.allocateConnection(mcf, null);
     }
 }

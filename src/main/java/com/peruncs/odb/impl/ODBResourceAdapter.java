@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Connector(
-        transactionSupport = TransactionSupport.TransactionSupportLevel.LocalTransaction,
+        transactionSupport = TransactionSupport.TransactionSupportLevel.NoTransaction,
         version = "1.0",
         vendorName = "PerunCS",
         displayName = "OrientDB",
@@ -105,15 +105,15 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
         pool.forEach((k, v) -> {
             v.close();
-            log.info("ODB-JCA closed database pool: " + k);
+            //log.info("ODB-JCA closed database pool: " + k);
         });
 
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
-            log.info("ODB-JCA embedded server stopped");
+            //log.info("ODB-JCA embedded server stopped");
         }
-        log.info("ODB-JCA resource adapter stopped");
+        //log.info("ODB-JCA resource adapter stopped");
     }
 
     @Override
