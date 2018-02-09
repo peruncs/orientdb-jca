@@ -26,30 +26,25 @@ import java.util.concurrent.ConcurrentHashMap;
         eisType = "Database")
 public class ODBResourceAdapter implements ResourceAdapter {
 
-    private static final Log log = LogFactory.getLog(ODBResourceAdapter.class);
-
     public static final XAResource[] EMPTY_XA_RESOURCE = new XAResource[0];
-
+    private static final Log log = LogFactory.getLog(ODBResourceAdapter.class);
+    private final Map<String, ODatabasePool> pool = new ConcurrentHashMap<>();
     @ConfigProperty(description = "OrientDB Embedded Server Configuration")
     private String embeddedServerConfiguration;
-
     @ConfigProperty(description = "OrientDB Embedded Server Home")
     private String orientdbHome;
-
     private OServer embeddedServer = null;
-
-    private final Map<String, ODatabasePool> pool = new ConcurrentHashMap<>();
 
     public ODBResourceAdapter() {
         setOrientdbHome(new File("").getAbsolutePath()); //Set default OrientDB home to current directory
     }
 
-    public void setEmbeddedServerConfiguration(String embeddedServerConfiguration) {
-        this.embeddedServerConfiguration = embeddedServerConfiguration;
-    }
-
     public String getEmbeddedServerConfiguration() {
         return embeddedServerConfiguration;
+    }
+
+    public void setEmbeddedServerConfiguration(String embeddedServerConfiguration) {
+        this.embeddedServerConfiguration = embeddedServerConfiguration;
     }
 
     public String getOrientdbHome() {

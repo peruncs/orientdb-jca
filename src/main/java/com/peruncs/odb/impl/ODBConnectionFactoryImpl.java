@@ -16,20 +16,20 @@ public class ODBConnectionFactoryImpl implements ODBConnectionFactory {
     private final ODBManagedConnectionFactory mcf;
     private final ConnectionManager cm;
     private Reference reference;
-    
+
     ODBConnectionFactoryImpl(ODBManagedConnectionFactory mcf, ConnectionManager cm) {
         this.mcf = mcf;
         this.cm = cm;
-    }
-    
-    @Override
-    public void setReference(Reference reference) {
-        this.reference = reference;
     }
 
     @Override
     public Reference getReference() {
         return reference;
+    }
+
+    @Override
+    public void setReference(Reference reference) {
+        this.reference = reference;
     }
 
     @Override

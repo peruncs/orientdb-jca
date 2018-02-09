@@ -3,8 +3,6 @@ package com.peruncs.odb.impl;
 
 import com.orientechnologies.orient.core.OConstants;
 import com.peruncs.odb.api.ODBManagedConnection;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.*;
@@ -16,16 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.resource.spi.ConnectionEvent.CONNECTION_CLOSED;
-import static javax.resource.spi.ConnectionEvent.CONNECTION_ERROR_OCCURRED;
 
 class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
 
-    private static final Log log = LogFactory.getLog(ODBManagedConnectionImpl.class);
-
     private final ODBManagedConnectionFactoryImpl mcf;
-    private PrintWriter logWriter = new PrintWriter(System.out);
     private final List<ConnectionEventListener> listeners = new ArrayList<>();
     private final ConnectionRequestInfo cri;
+    private PrintWriter logWriter = new PrintWriter(System.out);
 
     public ODBManagedConnectionImpl(ODBManagedConnectionFactoryImpl mcf, ConnectionRequestInfo cri) {
         this.mcf = mcf;
@@ -41,9 +36,6 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
         return mcf.newSession();
     }
 
-//    ODatabaseSession getSession() {
-//        return mcf.newSession();
-//    }
 
     @Override
     public void cleanup() {
@@ -57,13 +49,12 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
 
     @Override
     public void associateConnection(Object connection) {
-//        log.debug("associateConnection()");
-//        this.session = (ODatabaseSession) connection;
+
     }
 
     @Override
     public void addConnectionEventListener(ConnectionEventListener listener) {
-        log.debug("addConnectionEventListener()");
+
         synchronized (listeners) {
             listeners.add(listener);
         }
@@ -71,7 +62,7 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
 
     @Override
     public void removeConnectionEventListener(ConnectionEventListener listener) {
-        log.debug("removeConnectionEventListener()");
+
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -115,31 +106,23 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
     }
 
     @Override
+    public void setLogWriter(PrintWriter out) {
+        this.logWriter = out;
+    }
+
+    @Override
     public void close() {
         fireConnectionEvent(CONNECTION_CLOSED);
     }
 
     private void fireConnectionEvent(int event) {
-        log.debug("fireConnectionEvent()");
+
         ConnectionEvent connectionEvent = new ConnectionEvent(this, event);
-//        connectionEvent.setConnectionHandle(session);
         synchronized (listeners) {
             for (ConnectionEventListener listener : this.listeners) {
                 switch (event) {
-//                    case LOCAL_TRANSACTION_STARTED:
-//                        listener.localTransactionStarted(connectionEvent);
-//                        break;
-//                    case LOCAL_TRANSACTION_COMMITTED:
-//                        listener.localTransactionCommitted(connectionEvent);
-//                        break;
-//                    case LOCAL_TRANSACTION_ROLLEDBACK:
-//                        listener.localTransactionRolledback(connectionEvent);
-//                        break;
                     case CONNECTION_CLOSED:
                         listener.connectionClosed(connectionEvent);
-                        break;
-                    case CONNECTION_ERROR_OCCURRED:
-                        listener.connectionErrorOccurred(connectionEvent);
                         break;
                     default:
                         throw new IllegalArgumentException("Unknown event: " + event);
@@ -152,34 +135,5 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
         return cri;
     }
 
-    @Override
-    public void setLogWriter(PrintWriter out) {
-        this.logWriter = out;
-    }
-
-//    class OrientLocalTransaction implements LocalTransaction {
-//
-//        @Override
-//        public void begin() {
-//            log.debug("begin()");
-//            session.begin();
-//            fireConnectionEvent(LOCAL_TRANSACTION_STARTED);
-//        }
-//
-//        @Override
-//        public void commit() {
-//            log.debug("commit()");
-//            session.commit();
-//            fireConnectionEvent(LOCAL_TRANSACTION_COMMITTED);
-//        }
-//
-//        @Override
-//        public void rollback() {
-//            log.debug("rollback()");
-//            session.rollback();
-//            fireConnectionEvent(LOCAL_TRANSACTION_ROLLEDBACK);
-//        }
-//
-//    }
 
 }

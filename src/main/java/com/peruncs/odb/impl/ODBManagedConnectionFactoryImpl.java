@@ -44,6 +44,9 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     private Integer maxPoolSize = 0;
 
 
+    public ODBManagedConnectionFactoryImpl() {
+    }
+
     public String getUrl() {
         return url;
     }
@@ -74,9 +77,6 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     public void setMaxPoolSize(Integer maxPoolSize) {
         this.maxPoolSize = maxPoolSize;
-    }
-
-    public ODBManagedConnectionFactoryImpl() {
     }
 
     @Override
@@ -120,8 +120,8 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
             if (connection instanceof ODBManagedConnectionImpl) {
                 ODBManagedConnectionImpl orientConnection = (ODBManagedConnectionImpl) connection;
-                ConnectionRequestInfo cri =  orientConnection.getConnectionRequestInfo();
-                if (Objects.equals(cri,cxRequestInfo)) {
+                ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
+                if (Objects.equals(cri, cxRequestInfo)) {
                     return connection;
                 }
             }
@@ -130,13 +130,13 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     }
 
     @Override
-    public void setLogWriter(PrintWriter out) {
-        this.logWriter = out;
+    public PrintWriter getLogWriter() {
+        return logWriter;
     }
 
     @Override
-    public PrintWriter getLogWriter() {
-        return logWriter;
+    public void setLogWriter(PrintWriter out) {
+        this.logWriter = out;
     }
 
     @Override
