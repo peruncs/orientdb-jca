@@ -44,7 +44,6 @@ dependencies {
 }
 
 
-
 task apiJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.output
     include('com/peruncs/odb/api/**')
@@ -76,7 +75,7 @@ task jarJar(type: Jar, dependsOn: classes) {
 publishing {
 
     publications {
-        piPublication(MavenPublication) {
+        apiPublication(MavenPublication) {
             artifact apiJar
             artifact srcApiJar
             artifactId 'odbjca-api'
