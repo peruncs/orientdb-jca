@@ -5,8 +5,6 @@ import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.resource.spi.*;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
@@ -15,6 +13,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @Connector(
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ODBResourceAdapter implements ResourceAdapter {
 
     public static final XAResource[] EMPTY_XA_RESOURCE = new XAResource[0];
-    private static final Log log = LogFactory.getLog(ODBResourceAdapter.class);
+    private static final Logger log = Logger.getLogger(ODBResourceAdapter.class.getSimpleName());
     private final Map<String, ODatabasePool> pool = new ConcurrentHashMap<>();
     @ConfigProperty(description = "OrientDB Embedded Server Configuration")
     private String embeddedServerConfiguration;
@@ -88,7 +88,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
             log.info("ODB-JCA resource adapter successfully started");
 
         } catch (Exception e) {
-            log.error("ODB-JCA resource adapter failed to start", e);
+            log.log(Level.SEVERE,"ODB-JCA resource adapter failed to start", e);
             throw new ResourceAdapterInternalException(e);
         }
 

@@ -5,8 +5,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.peruncs.odb.api.ODBConnectionFactory;
 import com.peruncs.odb.api.ODBManagedConnectionFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.*;
@@ -14,6 +12,8 @@ import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @ConnectionDefinition(
@@ -25,7 +25,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     private static final long serialVersionUID = 1L;
 
-    private static final Log log = LogFactory.getLog(ODBManagedConnectionFactoryImpl.class);
+    private static final Logger log = Logger.getLogger(ODBManagedConnectionFactoryImpl.class.getSimpleName());
 
     private PrintWriter logWriter = new PrintWriter(System.out);
 
@@ -81,7 +81,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.debug("creating managed connection factory, url: " + url + ",  user: " + username);
+        log.log(Level.FINER,()->"creating managed connection factory, url: " + url + ",  user: " + username);
         validate();
         return new ODBConnectionFactoryImpl(this, cxManager);
     }
@@ -109,7 +109,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.debug("creating managed connection, url: " + url + ",  user: " + username);
+        log.log(Level.FINER,()->"Creating managed connection, url: " + url + ",  user: " + username);
         return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
