@@ -13,32 +13,30 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:deprecation"
 }
 
-buildscript {
-
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
-        mavenLocal()
-    }
-
-}
-
 repositories {
-
-    mavenCentral()
-    jcenter()
-    maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
     mavenLocal()
-
+    mavenCentral()
+    maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
+
+configurations {
+    odb {
+        transitive true
+        exclude group: 'javax.mail'
+        exclude group: 'com.sun.xml.bind'
+        exclude group: 'stax'
+    }
+}
 dependencies {
-    testCompile "junit:junit:${junit_version}"
-//    compileOnly "javax:javaee-api:${java_ee_version}"
     compileOnly "javax.resource:javax.resource-api:${jca_version}"
     compileOnly "com.orientechnologies:orientdb-server:${orientdb_version}"
-   // compileOnly "com.orientechnologies:orientdb-client:${orientdb_version}"
+
+    //OrientDB shared lib dependencies
+    odb "com.orientechnologies:orientdb-core:${orientdb_version}"
+    odb "com.orientechnologies:orientdb-server:${orientdb_version}"
+    odb "com.orientechnologies:orientdb-distributed:${orientdb_version}"
+    odb "com.orientechnologies:orientdb-client:${orientdb_version}"
 }
 
 
@@ -58,6 +56,12 @@ task rarJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.output
 }
 
+task rarAllJar(type: Jar, dependsOn: classes) {
+    extension 'rar'
+    from sourceSets.main.output
+    from  configurations.odb
+}
+
 task srcJar(type: Jar, dependsOn: apiJar) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -70,7 +74,6 @@ task jarJar(type: Jar, dependsOn: classes) {
 
 
 publishing {
-
     publications {
         apiPublication(MavenPublication) {
             artifact apiJar
@@ -101,7 +104,30 @@ publishing {
             artifactId 'odbjca-rar'
             pom.withXml {
                 asNode().with {
-                    appendNode('description', 'OrientDB JCA adapter for Java EE')
+                    appendNode('description', 'OrientDB JCA adapter for Java EE (Minimal)')
+                    appendNode('name', 'OrientDB JCA')
+                    appendNode('url', 'https://github.com/peruncs/orientdb-jca')
+                    appendNode('organization').with {
+                        appendNode('name', 'Perun Consulting Services, Inc')
+                        appendNode('url', 'www.peruncs.com')
+                    }
+                    appendNode('licenses').with {
+                        appendNode('license').with {
+                            appendNode('name', 'Apache 2.0')
+                            appendNode('url', 'https://www.apache.org/licenses/LICENSE-2.0')
+                        }
+                    }
+                }
+            }
+        }
+        rarAllPublication(MavenPublication) {
+            artifact rarAllJar
+            artifact jarJar
+            artifact srcJar
+            artifactId 'odbjca-rar-all'
+            pom.withXml {
+                asNode().with {
+                    appendNode('description', 'OrientDB JCA adapter for Java EE (Complete)')
                     appendNode('name', 'OrientDB JCA')
                     appendNode('url', 'https://github.com/peruncs/orientdb-jca')
                     appendNode('organization').with {
