@@ -59,33 +59,33 @@ public class ODBResourceAdapter implements ResourceAdapter {
     @Override
     public void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
 
-        log.info("ODB-JCA resource adapter starting ...");
-        log.info("ODB-JCA server configuration: " + getEmbeddedServerConfiguration());
-        log.info("ODB-JCA server home: " + getOrientdbHome());
+        log.info(()->"ODB-JCA resource adapter starting ...");
+        log.info(()->"ODB-JCA server configuration: " + getEmbeddedServerConfiguration());
+        log.info(()->"ODB-JCA server home: " + getOrientdbHome());
         if (embeddedServerConfiguration != null) try {
             embeddedServer = OServerMain.create(true);
             embeddedServer.startup(new File(embeddedServerConfiguration));
             embeddedServer.activate();
 
-            log.info("ODB-JCA database directory: " + embeddedServer.getDatabaseDirectory());
-            log.info("ODB-JCA server id: " + embeddedServer.getServerId());
-            log.info("ODB-JCA server activated: " + embeddedServer.isActive());
+            log.info(()->"ODB-JCA database directory: " + embeddedServer.getDatabaseDirectory());
+            log.info(()->"ODB-JCA server id: " + embeddedServer.getServerId());
+            log.info(()->"ODB-JCA server activated: " + embeddedServer.isActive());
 
             Map<String, String> storageNames = embeddedServer.getAvailableStorageNames();
             if (storageNames != null) {
-                storageNames.forEach((String k, String v) -> log.info("ODB-JCA storage: " + k + ", " + v));
+                storageNames.forEach((String k, String v) -> log.info(()->"ODB-JCA storage: " + k + ", " + v));
             }
 
             Map<String, Class<? extends ONetworkProtocol>> networkProtocols = embeddedServer.getNetworkProtocols();
             if (networkProtocols != null) {
                 networkProtocols.forEach((String k, Class<? extends ONetworkProtocol> v) -> {
-                    log.info("ODB-JCA network protocol name: " + k + ", " + v.getSimpleName());
+                    log.info(()->"ODB-JCA network protocol name: " + k + ", " + v.getSimpleName());
                     OServerNetworkListener l = embeddedServer.getListenerByProtocol(v);
-                    log.info("ODB-JCA protocol listener inbound addr: " + l.getInboundAddr() + ", active:" + l.isActive() + ", alive:" + l.isAlive());
+                    log.info(()->"ODB-JCA protocol listener inbound addr: " + l.getInboundAddr() + ", active:" + l.isActive() + ", alive:" + l.isAlive());
                 });
             }
 
-            log.info("ODB-JCA resource adapter successfully started");
+            log.info(()->"ODB-JCA resource adapter successfully started");
 
         } catch (Exception e) {
             log.log(Level.SEVERE,"ODB-JCA resource adapter failed to start", e);
@@ -100,15 +100,15 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
         pool.forEach((k, v) -> {
             v.close();
-            //log.info("ODB-JCA closed database pool: " + k);
+            //log.info(()->"ODB-JCA closed database pool: " + k);
         });
 
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
-            //log.info("ODB-JCA embedded server stopped");
+            //log.info(()->"ODB-JCA embedded server stopped");
         }
-        //log.info("ODB-JCA resource adapter stopped");
+        //log.info("()->ODB-JCA resource adapter stopped");
     }
 
     @Override
