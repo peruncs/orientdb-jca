@@ -79,21 +79,24 @@ publishing {
             artifact apiJar
             artifact srcApiJar
             artifactId 'odbjca-api'
-            pom.withXml {
-                asNode().with {
-                    appendNode('description', 'OrientDB JCA adapter for Java EE')
-                    appendNode('name', 'OrientDB JCA')
-                    appendNode('url', 'https://github.com/peruncs/orientdb-jca')
-                    appendNode('organization').with {
-                        appendNode('name', 'Perun Consulting Services, Inc')
-                        appendNode('url', 'www.peruncs.com')
+            pom {
+                name = "OrientDB JCA (API)"
+                description = "OrientDB JCA adapter (API)"
+                url = "hhttps://github.com/peruncs/orientdb-jca"
+                organization {
+                    name = "Perun Consulting Services, Inc"
+                    url = "www.peruncs.com"
+                }
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
-                    appendNode('licenses').with {
-                        appendNode('license').with {
-                            appendNode('name', 'Apache 2.0')
-                            appendNode('url', 'https://www.apache.org/licenses/LICENSE-2.0')
-                        }
-                    }
+                }
+                scm {
+                    connection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
             }
         }
@@ -102,21 +105,24 @@ publishing {
             artifact jarJar
             artifact srcJar
             artifactId 'odbjca-rar'
-            pom.withXml {
-                asNode().with {
-                    appendNode('description', 'OrientDB JCA adapter for Java EE (Minimal)')
-                    appendNode('name', 'OrientDB JCA')
-                    appendNode('url', 'https://github.com/peruncs/orientdb-jca')
-                    appendNode('organization').with {
-                        appendNode('name', 'Perun Consulting Services, Inc')
-                        appendNode('url', 'www.peruncs.com')
+            pom {
+                name = "OrientDB JCA (minimal)"
+                description = "OrientDB JCA adapter (minimal)"
+                url = "hhttps://github.com/peruncs/orientdb-jca"
+                organization {
+                    name = "Perun Consulting Services, Inc"
+                    url = "www.peruncs.com"
+                }
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
-                    appendNode('licenses').with {
-                        appendNode('license').with {
-                            appendNode('name', 'Apache 2.0')
-                            appendNode('url', 'https://www.apache.org/licenses/LICENSE-2.0')
-                        }
-                    }
+                }
+                scm {
+                    connection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
             }
         }
@@ -125,21 +131,24 @@ publishing {
             artifact jarJar
             artifact srcJar
             artifactId 'odbjca-rar-all'
-            pom.withXml {
-                asNode().with {
-                    appendNode('description', 'OrientDB JCA adapter for Java EE (Complete)')
-                    appendNode('name', 'OrientDB JCA')
-                    appendNode('url', 'https://github.com/peruncs/orientdb-jca')
-                    appendNode('organization').with {
-                        appendNode('name', 'Perun Consulting Services, Inc')
-                        appendNode('url', 'www.peruncs.com')
+            pom {
+                name = "OrientDB JCA (complete)"
+                description = "OrientDB (complete)"
+                url = "https://github.com/peruncs/orientdb-jca"
+                organization {
+                    name = "Perun Consulting Services, Inc"
+                    url = "www.peruncs.com"
+                }
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
-                    appendNode('licenses').with {
-                        appendNode('license').with {
-                            appendNode('name', 'Apache 2.0')
-                            appendNode('url', 'https://www.apache.org/licenses/LICENSE-2.0')
-                        }
-                    }
+                }
+                scm {
+                    connection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
+                    url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
             }
         }
