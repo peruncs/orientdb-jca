@@ -81,7 +81,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.log(Level.FINER,()->"creating managed connection factory, url: " + url + ",  user: " + username);
+        log.log(Level.FINER, () -> "creating managed connection factory, url: " + url + ",  user: " + username);
         validate();
         return new ODBConnectionFactoryImpl(this, cxManager);
     }
@@ -109,7 +109,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
 
     @Override
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.log(Level.FINER,()->"Creating managed connection, url: " + url + ",  user: " + username);
+        log.log(Level.FINER, () -> "Creating managed connection, url: " + url + ",  user: " + username);
         return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
