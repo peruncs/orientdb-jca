@@ -10,6 +10,7 @@ import javax.resource.ResourceException;
 import javax.resource.spi.*;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -43,6 +44,8 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     @ConfigProperty(type = Integer.class)
     private Integer maxPoolSize = 0;
 
+    @ConfigProperty(type = Integer.class)
+    private Integer maxRetry = 3;
 
     public ODBManagedConnectionFactoryImpl() {
     }
@@ -79,54 +82,12 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         this.maxPoolSize = maxPoolSize;
     }
 
-    @Override
-    public Object createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
-        log.log(Level.FINER, () -> "creating managed connection factory, url: " + url + ",  user: " + username);
-        validate();
-        return new ODBConnectionFactoryImpl(this, cxManager);
+    public Integer getMaxRetry() {
+        return maxRetry;
     }
 
-    private void validate() throws ResourceException {
-
-        if (url == null || url.trim().isEmpty()) {
-            throw new ResourceException("configuration property [url] must not be empty");
-        }
-
-        if (username == null || username.trim().isEmpty()) {
-            throw new ResourceException("configuration property [username] must not be empty");
-        }
-
-        if (password == null || password.trim().isEmpty()) {
-            throw new ResourceException("configuration property [password] must not be empty");
-        }
-
-    }
-
-    @Override
-    public Object createConnectionFactory() throws ResourceException {
-        throw new ResourceException("unmanaged environments are not supported");
-    }
-
-    @Override
-    public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
-        log.log(Level.FINER, () -> "Creating managed connection, url: " + url + ",  user: " + username);
-        return new ODBManagedConnectionImpl(this, cxRequestInfo);
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked", "resource"})
-    @Override
-    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo) {
-
-        for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
-            if (connection instanceof ODBManagedConnectionImpl) {
-                ODBManagedConnectionImpl orientConnection = (ODBManagedConnectionImpl) connection;
-                ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
-                if (Objects.equals(cri, cxRequestInfo)) {
-                    return connection;
-                }
-            }
-        }
-        return null;
+    public void setMaxRetry(Integer maxRetry) {
+        this.maxRetry = maxRetry;
     }
 
     @Override
@@ -176,13 +137,87 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
                 ;
     }
 
-    ODatabaseSession newSession() {
-        return ra.getPool()
-                .computeIfAbsent(url, k -> {
-                    log.info("ODB-JCA created database pool: " + k);
-                    return new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
-                })
-                .acquire();
+    @Override
+    public ODBConnectionFactory createConnectionFactory(ConnectionManager cxManager) throws ResourceException {
+        log.log(Level.FINER, () -> "creating managed connection factory with connection manager, url: " + url + ",  user: " + username);
+        validate();
+        return new ODBConnectionFactoryImpl(this, cxManager);
     }
 
+    @Override
+    public ODBConnectionFactory createConnectionFactory() throws ResourceException {
+        log.log(Level.FINER, () -> "creating managed connection factory, url: " + url + ",  user: " + username);
+        validate();
+        return new ODBConnectionFactoryImpl(this, null);
+    }
+
+    @Override
+    public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
+        log.log(Level.FINER, () -> "Creating managed connection, url: " + url + ",  user: " + username);
+        return new ODBManagedConnectionImpl(this, cxRequestInfo);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked", "resource"})
+    @Override
+    public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo) {
+        for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
+            if (connection instanceof ODBManagedConnectionImpl) {
+                ODBManagedConnectionImpl orientConnection = (ODBManagedConnectionImpl) connection;
+                ConnectionRequestInfo cri = orientConnection.getConnectionRequestInfo();
+                if (Objects.equals(cri, cxRequestInfo)) {
+                    return connection;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Attempts to create an ODB session from session pool. If the pool is bad, it is replaced and re-tried.
+     *
+     * @return ODB connection
+     * @throws ResourceException after max allowed attempts to create a session have been exhausted.
+     */
+    @Override
+    public ODatabaseSession newSession() throws ResourceException {
+        Map<String, ODatabasePool> pools = ra.getPool();
+        synchronized (pools) {
+            for (int i = 0; i < maxRetry; i++) {
+                final int currentAttempt = i;
+                try {
+                    return pools.computeIfAbsent(url, k -> {
+                        log.info("ODB-JCA created database pool: " + k + ", at attempts: " + currentAttempt);
+                        return new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
+                    }).acquire();
+                } catch (Exception e) {
+                    ODatabasePool failedPool = pools.remove(url);
+                    try {
+                        if (failedPool != null) {
+                            log.log(Level.INFO, "ODB-JCA discarded failed database pool: " + url, e);
+                            failedPool.close();
+                        }
+                    } catch (Exception ex) {
+                        //do nothing, ignore any exceptions
+                    }
+                }
+            }
+        }
+        throw new ResourceException("Unable to obtain session from: " + url + ", after: " + maxRetry + " attempts");
+    }
+
+    private void validate() throws ResourceException {
+
+        if (url == null || url.trim().isEmpty()) {
+            throw new ResourceException("configuration property [url] must not be empty");
+        }
+
+        if (username == null || username.trim().isEmpty()) {
+            throw new ResourceException("configuration property [username] must not be empty");
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            throw new ResourceException("configuration property [password] must not be empty");
+        }
+
+    }
 }

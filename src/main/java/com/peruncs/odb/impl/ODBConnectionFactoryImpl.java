@@ -34,6 +34,8 @@ public class ODBConnectionFactoryImpl implements ODBConnectionFactory {
 
     @Override
     public ODatabaseSession createSession() throws ResourceException {
-        return (ODatabaseSession) cm.allocateConnection(mcf, null);
+        return cm == null ?
+                mcf.newSession() :
+                (ODatabaseSession) cm.allocateConnection(mcf, null);
     }
 }

@@ -10,9 +10,9 @@ import javax.resource.spi.*;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +28,7 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
     public static final XAResource[] EMPTY_XA_RESOURCE = new XAResource[0];
     private static final Logger log = Logger.getLogger(ODBResourceAdapter.class.getSimpleName());
-    private final Map<String, ODatabasePool> pool = new ConcurrentHashMap<>();
+    private final Map<String, ODatabasePool> pool = new HashMap<>();
     @ConfigProperty(description = "OrientDB Embedded Server Configuration")
     private String embeddedServerConfiguration;
     @ConfigProperty(description = "OrientDB Embedded Server Home")
@@ -101,15 +101,15 @@ public class ODBResourceAdapter implements ResourceAdapter {
 
         pool.forEach((k, v) -> {
             v.close();
-            //log.info(()->"ODB-JCA closed database pool: " + k);
+            log.info(()->"ODB-JCA closed database pool: " + k);
         });
 
         //if (embeddedServer != null && embeddedServer.isActive()) {
         if (embeddedServer != null) {
             embeddedServer.shutdown();
-            //log.info(()->"ODB-JCA embedded server stopped");
+            log.info(()->"ODB-JCA embedded server stopped");
         }
-        //log.info("()->ODB-JCA resource adapter stopped");
+        log.info("()->ODB-JCA resource adapter stopped");
     }
 
     @Override
