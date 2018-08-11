@@ -2,6 +2,7 @@ package com.peruncs.odb.impl;
 
 
 import com.orientechnologies.orient.core.OConstants;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.peruncs.odb.api.ODBManagedConnection;
 
 import javax.resource.ResourceException;
@@ -32,7 +33,7 @@ class ODBManagedConnectionImpl implements ODBManagedConnection, Closeable {
     }
 
     @Override
-    public Object getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
+    public ODatabaseSession getConnection(Subject subject, ConnectionRequestInfo cxRequestInfo) {
         return mcf.newSession();
     }
 
