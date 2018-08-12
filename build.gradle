@@ -59,7 +59,7 @@ task rarJar(type: Jar, dependsOn: classes) {
 task rarAllJar(type: Jar, dependsOn: classes) {
     extension 'rar'
     from sourceSets.main.output
-    from  configurations.odb
+    from configurations.odb
 }
 
 task srcJar(type: Jar, dependsOn: apiJar) {
