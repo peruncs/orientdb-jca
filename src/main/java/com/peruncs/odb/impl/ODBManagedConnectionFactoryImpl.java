@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -173,37 +174,75 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
     }
 
     /**
-     * Attempts to create an ODB session from session pool. If the pool is bad, it is replaced and re-tried.
+     * Attempts to create an ODB session from a session pool. If the pool is bad, it is replaced and re-tried.
      *
      * @return ODB connection
      * @throws ResourceException after max allowed attempts to create a session have been exhausted.
      */
     @Override
     public ODatabaseSession newSession() throws ResourceException {
+
         Map<String, ODatabasePool> pools = ra.getPool();
+
         synchronized (pools) {
             for (int i = 0; i < maxRetry; i++) {
                 final int currentAttempt = i;
+                ODatabasePool currentPool = null;
                 try {
-                    return pools.computeIfAbsent(url, k -> {
-                        log.info("ODB-JCA created database pool: " + k + ", at attempts: " + currentAttempt);
-                        return new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
-                    }).acquire();
+                    currentPool = pools.get(url);
+                    if (currentPool == null) {
+                        pools.put(url, currentPool = new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig()));
+                        log.info(() -> "ODB-JCA created database pool: " + url + ", on attempt: " + currentAttempt);
+                    }
+                    return currentPool.acquire();
                 } catch (Exception e) {
-                    ODatabasePool failedPool = pools.remove(url);
-                    try {
-                        if (failedPool != null) {
-                            log.log(Level.INFO, "ODB-JCA discarded failed database pool: " + url, e);
-                            failedPool.close();
-                        }
-                    } catch (Exception ex) {
-                        //do nothing, ignore any exceptions
+                    log.log(Level.INFO, "ODB-JCA (discarded) failed database pool: " + url, e);
+                    pools.remove(url);
+                    if (currentPool != null) {
+                        // Close the  failed pool async, and get out of the lock asap.
+                        final ODatabasePool failedPool = currentPool;
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                failedPool.close();
+                            } catch (Exception ex) {
+                            }
+                        });
                     }
                 }
             }
         }
+
         throw new ResourceException("Unable to obtain session from: " + url + ", after: " + maxRetry + " attempts");
+
     }
+
+//    @Override
+//    public ODatabaseSession newSession() throws ResourceException {
+//        Map<String, ODatabasePool> pools = ra.getPool();
+//        synchronized (pools) {
+//            try {
+//                return pools.computeIfAbsent(url, k -> {
+//                    log.info("ODB-JCA created database pool: " + k);
+//                    return new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
+//                }).acquire();
+//            } catch (Exception e) {
+//                ODatabasePool newPool = new ODatabasePool(url, username, password, OrientDBConfig.defaultConfig());
+//                ODatabasePool failedPool = pools.replace(url, newPool);
+//                if (failedPool != null)
+//                    CompletableFuture.runAsync(() -> {
+//                        try {
+//                            failedPool.close();
+//                        } catch (Exception ex) {
+//                        }
+//                    });
+//                try {
+//                    return newPool.acquire();
+//                }catch(Exception ex){
+//                    throw new ResourceException("Unable to obtain session from: " + url);
+//                }
+//            }
+//        }
+//    }
 
     private void validate() throws ResourceException {
 

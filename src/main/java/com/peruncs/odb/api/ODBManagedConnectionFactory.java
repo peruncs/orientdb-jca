@@ -7,5 +7,5 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
 
 public interface ODBManagedConnectionFactory extends ManagedConnectionFactory, ResourceAdapterAssociation {
-     ODatabaseSession newSession() throws ResourceException ;
+    ODatabaseSession newSession() throws ResourceException;
 }
