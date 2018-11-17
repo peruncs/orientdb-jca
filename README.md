@@ -1,10 +1,10 @@
 #OrientDB 3.x JCA adapter 
 
-For compatible Java EE 7/JCA 1.7 and  MicroProfile servers.
+For compatible Java EE 7+/JCA 1.7 servers.
 
 ## Overview
 
-This JCA adapter provides OrientDB 3.x fuctionality to your Java EE or MicroProfile application.
+This JCA adapter provides OrientDB 3.x functionality to your Java EE or MicroProfile application.
 
 - This adapter does not work with JTA transactions (as OrientDB itself does not)
 
@@ -50,26 +50,32 @@ server.xml
 
 ## How to build
  
-Currently, this adapter is not available via Maven Central and you need to build it and deploy it locally like this:
+This OrientDB JCA Adapter is build with Gradle :
 
 > gradlew clean publishToMavenLocal
 
-This would install it into your local Maven repo. 
+## How to deploy 
+This OrientDB JCA Adapter is available from Maven central. The latest version is x.x.x=0.0.1 and is compiled against OrientDB 3.0.11.
+
 
 Gradle:
-> providedCompile "com.peruncs:odbjca-rar:${odbjca_version}@jar" 
+> providedCompile "com.peruncs.odbcjca:odbjca-rar:x.x.x@jar" 
 
 or
 
-> providedCompile "com.peruncs:odbjca-api:${odbjca_version}"
+> providedCompile "com.peruncs.odbcjca:odbjca-api:x.x.x"
 
 Maven:
->TODO
+><dependency>
+>   <groupId>com.peruncs.odbcjca</groupId>
+>   <artifactId>odbjca-api</artifactId>
+>   <version>x.x.x</version>
+></dependency>
 
 There are 3 artifacts deployed in the Maven repo:
- - odbcjca-api-xxx.jar - This is what you use to compile against.
- - odbcjca-rar-xxx.rar - The minimal resource adapter you need to deploy into you server. You need to provide the rest of the OrientDB jars into your server.
- - odbcjca-rar-all-xxx.rar - The complete resource adapter you need to deploy into you server. You need to provide the rest of the OrientDB jars into your server. 
+ - odbcjca-api-x.x.x.jar - This is what you use to compile against.
+ - odbcjca-rar-x.x.x.rar - The minimal resource adapter you need to deploy into you server. You need to provide the rest of the OrientDB jars into your server.
+ - odbcjca-rar-all-x.x.x.rar - The complete resource adapter you need to deploy into you server. Includes all the OrientDB jars. 
  
 ## How to use
 

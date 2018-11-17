@@ -1,7 +1,8 @@
-group = 'com.peruncs'
+group = 'com.peruncs.odbjca'
 version = "${orientdb_jca_version}"
 
 apply plugin: 'java'
+apply plugin: 'signing'
 apply plugin: 'maven-publish'
 
 sourceCompatibility = "${java_lang_level}"
@@ -24,10 +25,13 @@ configurations {
     odb {
         transitive true
         exclude group: 'javax.mail'
+        exclude group: 'javax.xml'
+        exclude group: 'javax.xml.bind'
         exclude group: 'com.sun.xml.bind'
         exclude group: 'stax'
     }
 }
+
 dependencies {
     compileOnly "javax.resource:javax.resource-api:${jca_version}"
     compileOnly "com.orientechnologies:orientdb-server:${orientdb_version}"
@@ -72,12 +76,24 @@ task jarJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.output
 }
 
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
+    }
+    failOnError false
+}
 
 publishing {
     publications {
         apiPublication(MavenPublication) {
             artifact apiJar
             artifact srcApiJar
+            artifact javadocJar
             artifactId 'odbjca-api'
             pom {
                 name = "OrientDB JCA (API)"
@@ -98,12 +114,20 @@ publishing {
                     developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
                     url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
+                developers {
+                    developer {
+                        id = 'hr.stoyanov'
+                        name = 'Hristo Stoyanov'
+                        email = 'hr.stoyanov@peruncs.com'
+                    }
+                }
             }
         }
         rarPublication(MavenPublication) {
             artifact rarJar
             artifact jarJar
             artifact srcJar
+            artifact javadocJar
             artifactId 'odbjca-rar'
             pom {
                 name = "OrientDB JCA (minimal)"
@@ -124,12 +148,20 @@ publishing {
                     developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
                     url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
+                developers {
+                    developer {
+                        id = 'hr.stoyanov'
+                        name = 'Hristo Stoyanov'
+                        email = 'hr.stoyanov@peruncs.com'
+                    }
+                }
             }
         }
         rarAllPublication(MavenPublication) {
             artifact rarAllJar
             artifact jarJar
             artifact srcJar
+            artifact javadocJar
             artifactId 'odbjca-rar-all'
             pom {
                 name = "OrientDB JCA (complete)"
@@ -150,7 +182,34 @@ publishing {
                     developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
                     url = "hhttps://github.com/peruncs/orientdb-jca"
                 }
+                developers {
+                    developer {
+                        id = 'hr.stoyanov'
+                        name = 'Hristo Stoyanov'
+                        email = 'hr.stoyanov@peruncs.com'
+                    }
+                }
             }
         }
     }
+
+    repositories {
+        maven {
+            url = version.endsWith('SNAPSHOT') ?
+                    "https://oss.sonatype.org/content/repositories/snapshots/"
+                    : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+
+}
+
+
+signing {
+    sign publishing.publications.apiPublication
+    sign publishing.publications.rarPublication
+    sign publishing.publications.rarAllPublication
 }
