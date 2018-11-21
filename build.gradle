@@ -1,4 +1,4 @@
-group = 'com.peruncs.odbjca'
+group = 'com.peruncs'
 version = "${orientdb_jca_version}"
 
 apply plugin: 'java'
@@ -56,18 +56,16 @@ dependencies {
 }
 
 
-task apiJar(type: Jar, dependsOn: classes) {
+task jarJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
     manifest.attributes[ 'Automatic-Module-Name'] = 'com.peruncs.odbjca.api'
     from sourceSets.main.output
-    include('com/peruncs/odb/api/**')
 }
 
-task srcApiJar(type: Jar, dependsOn: classes) {
+task srcJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
     classifier = 'sources'
     from sourceSets.main.allSource
-    include('com/peruncs/odb/api/**')
 }
 
 task rarJar(type: Jar, dependsOn: classes) {
@@ -78,23 +76,11 @@ task rarJar(type: Jar, dependsOn: classes) {
 
 task rarAllJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    extension 'rar'
+    extension 'rarall'
     from sourceSets.main.output
     from configurations.odb
 }
 
-task srcJar(type: Jar, dependsOn: apiJar) {
-    manifest = customManifest
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task implJar(type: Jar, dependsOn: classes) {
-    manifest = customManifest
-    //manifest.attributes[ 'Automatic-Module-Name'] = 'com.peruncs.odbjca.impl'
-    from sourceSets.main.output
-    include('com/peruncs/odb/impl/**')
-}
 
 task javadocJar(type: Jar) {
     manifest = customManifest
@@ -111,82 +97,16 @@ javadoc {
 
 publishing {
     publications {
-        apiPublication(MavenPublication) {
-            artifact apiJar
-            artifact srcApiJar
-            artifact javadocJar
-            artifactId 'odbjca-api'
-            pom {
-                name = "OrientDB JCA (API)"
-                description = "OrientDB JCA adapter (API)"
-                url = "hhttps://github.com/peruncs/orientdb-jca"
-                organization {
-                    name = "Perun Consulting Services, Inc"
-                    url = "www.peruncs.com"
-                }
-                licenses {
-                    license {
-                        name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    }
-                }
-                scm {
-                    connection = "https://github.com/peruncs/orientdb-jca/tree/master"
-                    developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
-                    url = "hhttps://github.com/peruncs/orientdb-jca"
-                }
-                developers {
-                    developer {
-                        id = 'hr.stoyanov'
-                        name = 'Hristo Stoyanov'
-                        email = 'hr.stoyanov@peruncs.com'
-                    }
-                }
-            }
-        }
-        rarPublication(MavenPublication) {
-            artifact rarJar
-            artifact implJar
-            artifact srcJar
-            artifact javadocJar
-            artifactId 'odbjca-rar'
-            pom {
-                name = "OrientDB JCA (minimal)"
-                description = "OrientDB JCA adapter (minimal)"
-                url = "hhttps://github.com/peruncs/orientdb-jca"
-                organization {
-                    name = "Perun Consulting Services, Inc"
-                    url = "www.peruncs.com"
-                }
-                licenses {
-                    license {
-                        name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    }
-                }
-                scm {
-                    connection = "https://github.com/peruncs/orientdb-jca/tree/master"
-                    developerConnection = "https://github.com/peruncs/orientdb-jca/tree/master"
-                    url = "hhttps://github.com/peruncs/orientdb-jca"
-                }
-                developers {
-                    developer {
-                        id = 'hr.stoyanov'
-                        name = 'Hristo Stoyanov'
-                        email = 'hr.stoyanov@peruncs.com'
-                    }
-                }
-            }
-        }
-        rarAllPublication(MavenPublication) {
+        publication(MavenPublication) {
+            artifact jarJar
             artifact rarAllJar
-            artifact implJar
+            artifact rarJar
             artifact srcJar
             artifact javadocJar
-            artifactId 'odbjca-rar-all'
+            //artifactId 'orient'
             pom {
-                name = "OrientDB JCA (complete)"
-                description = "OrientDB (complete)"
+                name = "OrientDB JCA"
+                description = "OrientDB"
                 url = "https://github.com/peruncs/orientdb-jca"
                 organization {
                     name = "Perun Consulting Services, Inc"
@@ -230,7 +150,5 @@ publishing {
 
 
 signing {
-    sign publishing.publications.apiPublication
-    sign publishing.publications.rarPublication
-    sign publishing.publications.rarAllPublication
+    sign publishing.publications.publication
 }
