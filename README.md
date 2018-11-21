@@ -55,27 +55,25 @@ This OrientDB JCA Adapter is build with Gradle :
 > gradlew clean publishToMavenLocal
 
 ## How to deploy 
-This OrientDB JCA Adapter is available from Maven central. The latest version is x.x.x=0.0.1 and is compiled against OrientDB 3.0.11.
+This OrientDB JCA Adapter is available from Maven central.
+ The latest version is x.x.x=0.0.2 and is compiled against OrientDB 3.0.11.
 
 
 Gradle:
-> providedCompile "com.peruncs.odbcjca:odbjca-rar:x.x.x@jar" 
+> providedCompile "com.peruncs:orientdb-jca:x.x.x" 
 
-or
-
-> providedCompile "com.peruncs.odbcjca:odbjca-api:x.x.x"
 
 Maven:
 ><dependency>
->   <groupId>com.peruncs.odbcjca</groupId>
->   <artifactId>odbjca-api</artifactId>
+>   <groupId>com.peruncs</groupId>
+>   <artifactId>orientdb-jca</artifactId>
 >   <version>x.x.x</version>
 ></dependency>
 
 There are 3 artifacts deployed in the Maven repo:
- - odbcjca-api-x.x.x.jar - This is what you use to compile against.
- - odbcjca-rar-x.x.x.rar - The minimal resource adapter you need to deploy into you server. You need to provide the rest of the OrientDB jars into your server.
- - odbcjca-rar-all-x.x.x.rar - The complete resource adapter you need to deploy into you server. Includes all the OrientDB jars. 
+ - orientdb-jca-x.x.x.jar    - This is what you compile against.
+ - orientdb-jca-x.x.x.rar    - The minimal resource adapter you need to deploy into you server. You need to provide the rest of the OrientDB jars into your server somehow.
+ - orientdb-jca-x.x.x.rarall - The complete resource adapter you need to deploy into you server. Includes all the OrientDB jars. 
  
 ## How to use
 
