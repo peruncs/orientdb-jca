@@ -58,7 +58,7 @@ dependencies {
 
 task jarJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    manifest.attributes[ 'Automatic-Module-Name'] = 'com.peruncs.odbjca.api'
+    manifest.attributes[ 'Automatic-Module-Name'] = 'com.peruncs.odbjca'
     from sourceSets.main.output
 }
 
