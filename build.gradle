@@ -10,11 +10,12 @@ targetCompatibility = "${java_lang_level}"
 
 def customManifest = manifest {
     attributes(
-            'Specification-Title': 'OrinetDB Java EE JCA adapter',
-            'Implementation-Title': 'OrinetDB Java EE JCA adapter',
+            'Specification-Title': 'OrinetDB 3 Java EE JCA adapter',
+            'Implementation-Title': 'OrinetDB 3 Java EE JCA adapter',
             'Build-Timestamp': java.time.Instant.now().toString(),
             'Specification-Vendor': 'peruncs.com',
             'Implementation-Vendor': 'peruncs.com',
+            'Automatic-Module-Name': 'com.peruncs.odbjca',
             'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
             'Build-With': "Gradle ${gradle.gradleVersion}",
     )
@@ -58,13 +59,12 @@ dependencies {
 
 task jarJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    manifest.attributes[ 'Automatic-Module-Name'] = 'com.peruncs.odbjca'
     from sourceSets.main.output
 }
 
 task srcJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -85,7 +85,7 @@ task rarAllJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar) {
     manifest = customManifest
     from javadoc
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 javadoc {
