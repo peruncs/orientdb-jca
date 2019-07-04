@@ -158,7 +158,7 @@ public class ODBManagedConnectionFactoryImpl implements ODBManagedConnectionFact
         return new ODBManagedConnectionImpl(this, cxRequestInfo);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked", "resource"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public ManagedConnection matchManagedConnections(Set connectionSet, Subject subject, ConnectionRequestInfo cxRequestInfo) {
         for (ManagedConnection connection : (Set<ManagedConnection>) connectionSet) {
