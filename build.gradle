@@ -134,21 +134,18 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            url = version.endsWith('SNAPSHOT') ?
-                    "https://oss.sonatype.org/content/repositories/snapshots/"
-                    : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username sonatypeUsername
-                password sonatypePassword
+    publishing {
+        afterEvaluate {
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/peruncs/orientdb-jca")
+                    credentials {
+                        username githubUser
+                        password githubToken
+                    }
+                }
             }
         }
     }
-
-}
-
-
-signing {
-    sign publishing.publications.publication
 }
