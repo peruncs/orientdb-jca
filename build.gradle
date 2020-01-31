@@ -30,7 +30,7 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 
@@ -70,13 +70,13 @@ task srcJar(type: Jar, dependsOn: classes) {
 
 task rarJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    extension 'rar'
+    archiveExtension = 'rar'
     from sourceSets.main.output
 }
 
 task rarAllJar(type: Jar, dependsOn: classes) {
     manifest = customManifest
-    extension 'rarall'
+    archiveExtension = 'rarall'
     from sourceSets.main.output
     from configurations.odb
 }
@@ -115,7 +115,7 @@ publishing {
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 scm {
